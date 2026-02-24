@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Practice Tools</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    color: #e0e0f0;
+    font-family: monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: normal;
+    letter-spacing: 0.12em;
+    color: #a0c4ff;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  h1 span {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: #6080aa;
+    margin-top: 6px;
+  }
+
+  .tools {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 280px;
+  }
+
+  .tool-btn {
+    display: block;
+    background: #252540;
+    border: 1px solid #2a4a9a;
+    color: #a0c4ff;
+    font-family: monospace;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    padding: 18px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .tool-btn:hover {
+    background: #2a4a9a;
+    border-color: #a0c4ff;
+    color: #ffffff;
+  }
+
+  .tool-btn .sub {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #6080aa;
+    margin-top: 4px;
+    transition: color 0.15s;
+  }
+
+  .tool-btn:hover .sub {
+    color: #a0c4ff;
+  }
+</style>
+</head>
+<body>
+
+<h1>Music Practice Tools<span>select a tool</span></h1>
+
+<div class="tools">
+  <a class="tool-btn" href="ear_trainer.html">
+    Ear Trainer
+    <span class="sub">intervals · scales · chords</span>
+  </a>
+  <a class="tool-btn" href="rhythm_trainer.html">
+    Rhythm Trainer
+    <span class="sub">read &amp; play rhythms</span>
+  </a>
+</div>
+
+</body>
+</html>
