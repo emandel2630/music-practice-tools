@@ -190,11 +190,32 @@
 
         #staff-wrap { width: 100%; overflow-x: auto; }
         #rhythm-staff { display: block; }
+
+        #staff-wrap.obscured { filter: blur(60px); pointer-events: none; user-select: none; }
+        #reveal-btn { display: none; }
+        #reveal-btn.visible {
+            display: inline-block;
+            background: #2a4a9a; color: #ddeeff;
+            border: 1px solid #4070cc; padding: 6px 22px;
+            border-radius: 20px; cursor: pointer;
+            font-family: monospace; font-size: 1em; margin: 0 16px;
+        }
+        #reveal-btn.visible:hover { background: #3a5aaa; }
+        #midi-status {
+            position: fixed; bottom: 14px; right: 14px;
+            background: #252540; border: 1px solid #3a3a5c;
+            color: #888; border-radius: 12px; padding: 4px 10px;
+            font-size: 11px; font-family: monospace; z-index: 999;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        #midi-status.on { color: #a0c4ff; border-color: #a0c4ff; }
+        #midi-status.err { color: #ff8080; border-color: #ff8080; }
     </style>
 </head>
 <body>
 
 <button id="settings-btn">&#9881; Settings</button>
+<div id="midi-status">MIDI: off</div>
 
 <div id="overlay"></div>
 <div id="settings-panel">
@@ -260,6 +281,12 @@
             <button class="pill on" id="met-mute-btn">&#9836; Sound</button>
         </div>
     </div>
+    <div class="setting-group">
+        <div class="lbl">Mode</div>
+        <div class="pill-group">
+            <button class="pill on" id="mode-btn">Reading</button>
+        </div>
+    </div>
 </div>
 
 <div id="beat-dots"></div>
@@ -274,6 +301,7 @@
 
 <div class="controls">
     <button class="ctrl-btn" id="btn-replay"><span class="key">&#8592;</span> Replay</button>
+    <button id="reveal-btn">&#128065; Reveal</button>
     <button class="ctrl-btn" id="btn-advance"><span class="key">&#8594;</span> Play / Next</button>
 </div>
 
@@ -347,6 +375,8 @@ const AHEAD = 0.12, LOOK = 25;
 let rhythm = [];       // array of bars
 let hasRhythm = false;
 let hasPlayed = false;
+let dictMode = false;      // true = Dictation mode
+let dictRevealed = false;  // true after user clicks Reveal
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
 function click(freq, vol, t) {
@@ -498,8 +528,10 @@ function genRhythm() {
     const ts = { ...tsInfo(), compound: TS[tsKey].compound, beatU: TS[tsKey].beatU };
     rhythm = Array.from({length:numBars}, ()=>genBar(ts.barU, ts));
     hasRhythm = true; hasPlayed = false;
+    dictRevealed = false;
     renderStaff();
-    setStatus('Press \u2192 to play');
+    setStatus(dictMode ? 'Press \u2192 to hear it' : 'Press \u2192 to play');
+    updateStaffVis();
 }
 
 // ── Rhythm playback ───────────────────────────────────────────────────────────
@@ -557,7 +589,10 @@ function playRhythm() {
         isPlaying = false;
         hasPlayed = true;
         highlightAll(false);
-        setStatus('Replay \u2190 or Next \u2192');
+        setStatus(dictMode && !dictRevealed
+            ? 'Write it down, then press \u2192 to reveal'
+            : 'Replay \u2190 or Next \u2192');
+        updateStaffVis();
     }, Math.max(600, endMs)));
 }
 
@@ -822,6 +857,15 @@ function drawTriplet(svg, grp) {
 // ── Session ───────────────────────────────────────────────────────────────────
 function setStatus(t) { document.getElementById('status').textContent = t; }
 
+function updateStaffVis() {
+    const wrap = document.getElementById('staff-wrap');
+    const revBtn = document.getElementById('reveal-btn');
+    (dictMode && hasRhythm && !dictRevealed)
+        ? wrap.classList.add('obscured')
+        : wrap.classList.remove('obscured');
+    revBtn.classList.toggle('visible', dictMode && hasPlayed && !dictRevealed);
+}
+
 async function doAdvance() {
     if (actx.state === 'suspended') await actx.resume();
     if (!metOn) startMet();
@@ -831,7 +875,11 @@ async function doAdvance() {
         genRhythm();
         return;
     }
-    if (!hasRhythm || hasPlayed) {
+    if (dictMode && hasPlayed && !dictRevealed) {
+        dictRevealed = true;
+        updateStaffVis();
+        setStatus('Replay \u2190 or Next \u2192');
+    } else if (!hasRhythm || hasPlayed) {
         genRhythm();
     } else {
         setStatus('Playing...');
@@ -860,6 +908,25 @@ document.addEventListener('keydown', e => {
 
 document.getElementById('btn-advance').addEventListener('click', e=>{ e.currentTarget.blur(); doAdvance(); });
 document.getElementById('btn-replay').addEventListener('click',  e=>{ e.currentTarget.blur(); doReplay(); });
+
+document.getElementById('mode-btn').addEventListener('click', e => {
+    dictMode = !dictMode;
+    const btn = e.currentTarget;
+    btn.textContent = dictMode ? 'Dictation' : 'Reading';
+    btn.classList.toggle('on', !dictMode);
+    cancelPlayback();
+    hasRhythm = false; hasPlayed = false; dictRevealed = false;
+    document.getElementById('rhythm-staff').innerHTML = '';
+    setStatus('Press \u2192 to generate a rhythm');
+    updateStaffVis();
+});
+
+document.getElementById('reveal-btn').addEventListener('click', () => {
+    if (!dictMode || !hasPlayed) return;
+    dictRevealed = true;
+    updateStaffVis();
+    setStatus('Replay \u2190 or Next \u2192');
+});
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 function openSettings()  { document.getElementById('settings-panel').style.display='block'; document.getElementById('overlay').style.display='block'; }
@@ -954,6 +1021,68 @@ knobEl.addEventListener('wheel',e=>{
 // ── Init ──────────────────────────────────────────────────────────────────────
 updateKnob();
 buildDots();
+
+// ── MIDI Piano ──────────────────────────────────────────────────────────────
+const midiGain = actx.createGain();
+midiGain.gain.value = 0.6;
+midiGain.connect(actx.destination);
+const midiNotes = {};
+
+function midiNoteOn(note, vel) {
+    if (actx.state === 'suspended') actx.resume();
+    if (midiNotes[note]) return;
+    const freq = 440 * Math.pow(2, (note - 69) / 12);
+    const osc = actx.createOscillator();
+    const g = actx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    osc.connect(g); g.connect(midiGain);
+    const now = actx.currentTime;
+    const peak = (vel / 127) * 0.7;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.008);
+    osc.start(now);
+    midiNotes[note] = { osc, g };
+}
+
+function midiNoteOff(note) {
+    const n = midiNotes[note];
+    if (!n) return;
+    const now = actx.currentTime;
+    n.g.gain.cancelScheduledValues(now);
+    n.g.gain.setValueAtTime(n.g.gain.value, now);
+    n.g.gain.linearRampToValueAtTime(0, now + 0.4);
+    n.osc.stop(now + 0.41);
+    delete midiNotes[note];
+}
+
+function onMidiMsg(e) {
+    const [cmd, note, vel] = e.data;
+    if (cmd === 144 && vel > 0) midiNoteOn(note, vel);
+    else if (cmd === 128 || (cmd === 144 && vel === 0)) midiNoteOff(note);
+}
+
+function connectMidi(access) {
+    const el = document.getElementById('midi-status');
+    const ins = [...access.inputs.values()];
+    ins.forEach(i => { i.onmidimessage = onMidiMsg; });
+    el.textContent = ins.length ? 'MIDI: connected' : 'MIDI: no device';
+    el.className = ins.length ? 'on' : '';
+    access.onstatechange = () => {
+        const ins2 = [...access.inputs.values()];
+        ins2.forEach(i => { i.onmidimessage = onMidiMsg; });
+        el.textContent = ins2.length ? 'MIDI: connected' : 'MIDI: no device';
+        el.className = ins2.length ? 'on' : '';
+    };
+}
+
+if (navigator.requestMIDIAccess) {
+    document.getElementById('midi-status').textContent = 'MIDI: searching\u2026';
+    navigator.requestMIDIAccess().then(connectMidi, () => {
+        const el = document.getElementById('midi-status');
+        el.textContent = 'MIDI: denied'; el.className = 'err';
+    });
+}
 </script>
 </body>
 </html>
