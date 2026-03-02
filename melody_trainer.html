@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Melody Trainer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: monospace;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 32px 16px 48px;
+}
+
+h1 { color: #a0c4ff; letter-spacing: 4px; margin-bottom: 10px; font-size: 2.8em; }
+
+#status {
+    font-size: 1.5em;
+    margin: 10px 0;
+    color: #ffcc00;
+    min-height: 1.5em;
+    text-align: center;
+}
+
+.controls {
+    margin-top: 16px;
+    font-size: 1.1em;
+    display: flex;
+    gap: 36px;
+    align-items: center;
+}
+
+.ctrl-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-family: monospace;
+    font-size: 1.1em;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ctrl-btn:hover { color: #aaa; }
+
+.key {
+    background: #333;
+    padding: 2px 10px;
+    border-radius: 3px;
+    color: #bbb;
+    border: 1px solid #555;
+}
+
+#settings-btn {
+    position: fixed; top: 14px; right: 14px;
+    background: #252540; color: #999;
+    border: 1px solid #444; padding: 5px 12px;
+    border-radius: 4px; cursor: pointer;
+    font-family: monospace; font-size: 0.85em;
+}
+#settings-btn:hover { background: #353560; color: #ccc; }
+
+#overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 10;
+}
+
+#settings-panel {
+    display: none; position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #16213e; border: 1px solid #445;
+    border-radius: 8px; padding: 24px 28px;
+    min-width: 480px; z-index: 20;
+}
+#settings-panel h2 {
+    color: #a0c4ff; margin-bottom: 20px;
+    font-size: 1em; letter-spacing: 2px; text-transform: uppercase;
+}
+
+.setting-group { margin-bottom: 18px; }
+.setting-group .lbl {
+    color: #666; font-size: 0.75em;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+}
+
+.pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.pill {
+    background: #1e2a4a; color: #888;
+    border: 1px solid #334; padding: 4px 14px;
+    border-radius: 20px; cursor: pointer;
+    font-family: monospace; font-size: 0.85em;
+}
+.pill:hover { background: #253060; color: #aaa; }
+.pill.on { background: #2a4a9a; color: #ddeeff; border-color: #4070cc; }
+
+#close-btn {
+    margin-top: 18px; background: #252540; color: #999;
+    border: 1px solid #444; padding: 5px 18px;
+    border-radius: 4px; cursor: pointer;
+    font-family: monospace; font-size: 0.85em;
+}
+#close-btn:hover { background: #353560; }
+
+#quick-controls {
+    display: flex; gap: 36px; margin: 8px 0 12px;
+    align-items: flex-start; flex-wrap: wrap; justify-content: center;
+}
+#quick-controls .setting-group { margin-bottom: 0; }
+
+#play-indicator {
+    display: flex; gap: 8px; margin: 6px 0;
+    min-height: 22px; align-items: center; justify-content: center;
+}
+.note-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #252540; border: 1px solid #333;
+    transition: background 0.05s, box-shadow 0.05s;
+}
+.note-dot.active { background: #a0c4ff; box-shadow: 0 0 8px #a0c4ff; }
+.note-dot.sep { width: 1px; height: 18px; border-radius: 0; background: #333; border: none; margin: 0 2px; }
+
+#staff-container {
+    width: 94vw; max-width: 1040px;
+    margin: 8px auto;
+    background: #f5f0e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    overflow: hidden;
+    min-height: 130px;
+}
+#staff-wrap { width: 100%; overflow-x: auto; }
+
+.tempo-row { display: flex; align-items: center; gap: 18px; }
+.tempo-val { font-size: 2em; color: #a0c4ff; text-align: center; min-width: 44px; line-height: 1; }
+.tempo-unit { font-size: 0.45em; color: #555; display: block; letter-spacing: 1px; }
+
+#key-label {
+    color: #888; font-size: 1.1em; margin-bottom: 4px; min-height: 1.2em;
+}
+</style>
+</head>
+<body>
+
+<button id="settings-btn">&#9881; Settings</button>
+
+<div id="overlay"></div>
+<div id="settings-panel">
+    <h2>Settings</h2>
+    <div class="setting-group">
+        <div class="lbl">Key</div>
+        <div class="pill-group" id="key-btns"></div>
+    </div>
+    <div class="setting-group">
+        <div class="lbl">Voice Range</div>
+        <div class="pill-group" id="range-btns">
+            <button class="pill" data-range="-12">&#8595; Low (-8va)</button>
+            <button class="pill on" data-range="0">Mid</button>
+            <button class="pill" data-range="12">&#8593; High (+8va)</button>
+        </div>
+    </div>
+    <div class="setting-group">
+        <div class="lbl">Scale on Generate</div>
+        <div class="pill-group" id="scalecheck-btns">
+            <button class="pill on" data-sc="yes">Play scale</button>
+            <button class="pill" data-sc="no">Skip scale</button>
+        </div>
+    </div>
+    <button id="close-btn">Close</button>
+</div>
+
+<h1>Melody Trainer</h1>
+<div id="key-label"></div>
+
+<div id="quick-controls">
+    <div class="setting-group">
+        <div class="lbl">Measures</div>
+        <div class="pill-group" id="measures-btns">
+            <button class="pill" data-m="1">1</button>
+            <button class="pill on" data-m="2">2</button>
+            <button class="pill" data-m="3">3</button>
+            <button class="pill" data-m="4">4</button>
+        </div>
+    </div>
+    <div class="setting-group">
+        <div class="lbl">Max Interval</div>
+        <div class="pill-group" id="interval-btns">
+            <button class="pill on" data-iv="1">Step (2nd)</button>
+            <button class="pill" data-iv="2">3rd</button>
+            <button class="pill" data-iv="3">4th</button>
+            <button class="pill" data-iv="4">5th</button>
+            <button class="pill" data-iv="7">Any</button>
+        </div>
+    </div>
+</div>
+
+<div id="play-indicator"></div>
+
+<div id="staff-container">
+    <div id="staff-wrap"></div>
+</div>
+
+<div id="status">Press &#8594; to generate a melody</div>
+
+<div class="controls">
+    <button class="ctrl-btn" id="btn-check"><span class="key">&#8592;</span> Check</button>
+    <button class="ctrl-btn" id="btn-scale"><span class="key">&#8595;</span> Scale</button>
+    <button class="ctrl-btn" id="btn-next"><span class="key">&#8594;</span> Generate / Next</button>
+</div>
+
+<div class="tempo-row" style="margin-top:28px">
+    <svg id="tempo-knob" width="90" height="90" viewBox="-45 -45 90 90"
+        style="cursor:grab;display:block;user-select:none">
+        <circle r="32" fill="none" stroke="#252540" stroke-width="7" stroke-linecap="round"
+            stroke-dasharray="150.80 201.06" transform="rotate(135)" />
+        <circle id="knob-fill" r="32" fill="none" stroke="#2a4a9a" stroke-width="7" stroke-linecap="round"
+            stroke-dasharray="56.55 201.06" transform="rotate(135)" />
+        <line x1="-28.3" y1="28.3"  x2="-24.7" y2="24.7"  stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="-36.9" y1="-15.3" x2="-32.3" y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="0"     y1="-40"   x2="0"     y2="-35"   stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="36.9"  y1="-15.3" x2="32.3"  y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="28.3"  y1="28.3"  x2="24.7"  y2="24.7"  stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
+        <circle r="26" fill="#1e2a4a" stroke="#334" stroke-width="1.5"/>
+        <g id="knob-indicator">
+            <line x1="0" y1="-12" x2="0" y2="-22" stroke="#a0c4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="0" cy="-22" r="2" fill="#a0c4ff"/>
+        </g>
+    </svg>
+    <div class="tempo-val">
+        <span id="tempo-bpm">80</span>
+        <span class="tempo-unit">BPM</span>
+    </div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────────
+const C4 = 261.63;
+const TEMPO_MIN = 40, TEMPO_MAX = 200;
+const KNOB_CIRC = 201.062, KNOB_ARC = 150.796;
+
+// Semitone offsets from root for major scale degrees 0-7 (do through do)
+const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11, 12];
+
+// Keys: root is semitones above C in octave 4 (so root=0 → C4, root=7 → G4, etc.)
+const KEYS = [
+    {name:'C',         root:0,  sharps:0, flats:0,
+     notes:['C','D','E','F','G','A','B','C']},
+    {name:'G',         root:7,  sharps:1, flats:0,
+     notes:['G','A','B','C','D','E','F&#9839;','G']},
+    {name:'D',         root:2,  sharps:2, flats:0,
+     notes:['D','E','F&#9839;','G','A','B','C&#9839;','D']},
+    {name:'A',         root:9,  sharps:3, flats:0,
+     notes:['A','B','C&#9839;','D','E','F&#9839;','G&#9839;','A']},
+    {name:'E',         root:4,  sharps:4, flats:0,
+     notes:['E','F&#9839;','G&#9839;','A','B','C&#9839;','D&#9839;','E']},
+    {name:'B',         root:11, sharps:5, flats:0,
+     notes:['B','C&#9839;','D&#9839;','E','F&#9839;','G&#9839;','A&#9839;','B']},
+    {name:'F&#9839;',  root:6,  sharps:6, flats:0,
+     notes:['F&#9839;','G&#9839;','A&#9839;','B','C&#9839;','D&#9839;','E&#9839;','F&#9839;']},
+    {name:'F',         root:5,  sharps:0, flats:1,
+     notes:['F','G','A','B&#9837;','C','D','E','F']},
+    {name:'B&#9837;',  root:10, sharps:0, flats:2,
+     notes:['B&#9837;','C','D','E&#9837;','F','G','A','B&#9837;']},
+    {name:'E&#9837;',  root:3,  sharps:0, flats:3,
+     notes:['E&#9837;','F','G','A&#9837;','B&#9837;','C','D','E&#9837;']},
+    {name:'A&#9837;',  root:8,  sharps:0, flats:4,
+     notes:['A&#9837;','B&#9837;','C','D&#9837;','E&#9837;','F','G','A&#9837;']},
+    {name:'D&#9837;',  root:1,  sharps:0, flats:5,
+     notes:['D&#9837;','E&#9837;','F','G&#9837;','A&#9837;','B&#9837;','C','D&#9837;']},
+];
+
+// Staff layout
+const LS = 12, HS = 6;   // line spacing, half-step height (per diatonic step)
+const STAFF_TOP = 28;    // y of top staff line (F5)
+const STAFF_BOT = 76;    // y of bottom staff line (E4)
+
+const LETTER_BASE_POS = {C:-2, D:-1, E:0, F:1, G:2, A:3, B:4};
+const LETTER_PC       = {C:0, D:2, E:4, F:5, G:7, A:9, B:11};
+const SHARP_SIG_POS   = [8, 5, 9, 6, 3, 7, 4];
+const FLAT_SIG_POS    = [4, 7, 3, 6, 2, 5, 1];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const actx = new (window.AudioContext || window.webkitAudioContext)();
+let tempo       = 80;
+let currentKey  = KEYS[0];
+let numMeasures = 2;
+let maxInterval = 1;    // max scale-step gap between consecutive notes
+let octaveShift = 0;    // -12, 0, or 12 semitones
+let scaleOnGenerate = true; // play scale when generating a new melody
+let melody      = [];   // array of scale degree indices (0-7)
+let phase       = 'IDLE'; // IDLE | READY | PLAYING
+
+let activeOscs  = [];
+let activeTimers= [];
+
+// ── Audio ──────────────────────────────────────────────────────────────────────
+function playNote(freq, t, dur) {
+    const osc = actx.createOscillator(), gain = actx.createGain();
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.30, t + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.88);
+    osc.start(t); osc.stop(t + dur);
+    activeOscs.push(osc);
+    osc.onended = () => { activeOscs = activeOscs.filter(o => o !== osc); };
+}
+
+function stopAll() {
+    activeTimers.forEach(id => clearTimeout(id));
+    activeTimers = [];
+    const now = actx.currentTime;
+    activeOscs.forEach(o => { try { o.stop(now); } catch(e) {} });
+    activeOscs = [];
+}
+
+function noteFreq(degree) {
+    return C4 * Math.pow(2, (currentKey.root + octaveShift + MAJOR_STEPS[degree]) / 12);
+}
+
+// Play ascending scale (degrees 0-7), call cb when done
+function playScale(cb) {
+    const t0 = actx.currentTime + 0.08;
+    const noteDur = Math.max(0.22, Math.min(0.55, 60 / tempo * 0.78));
+    for (let d = 0; d <= 7; d++) {
+        playNote(noteFreq(d), t0 + d * noteDur, noteDur);
+    }
+    const total = 8 * noteDur + 0.15;
+    const tid = setTimeout(cb, total * 1000);
+    activeTimers.push(tid);
+}
+
+// Play melody, calling onNote(i) as each note starts, then cb when done
+function playMelody(onNote, cb) {
+    const beatDur = 60 / tempo;
+    const t0 = actx.currentTime + 0.08;
+    melody.forEach((deg, i) => {
+        playNote(noteFreq(deg), t0 + i * beatDur, beatDur * 0.85);
+        const delay = Math.max(0, (t0 + i * beatDur - actx.currentTime) * 1000);
+        const tid = setTimeout(() => onNote(i), delay);
+        activeTimers.push(tid);
+    });
+    const tid = setTimeout(cb, (melody.length * beatDur + 0.3) * 1000);
+    activeTimers.push(tid);
+}
+
+// ── Melody generation ─────────────────────────────────────────────────────────
+function generateMelody() {
+    const total = numMeasures * 4;
+    const mel = [];
+    let pos = Math.floor(Math.random() * 8); // random start degree
+    for (let i = 0; i < total; i++) {
+        mel.push(pos);
+        if (i < total - 1) {
+            const candidates = [];
+            for (let j = 0; j <= 7; j++) {
+                if (Math.abs(j - pos) <= maxInterval) candidates.push(j);
+            }
+            pos = candidates[Math.floor(Math.random() * candidates.length)];
+        }
+    }
+    return mel;
+}
+
+// ── Staff notation ─────────────────────────────────────────────────────────────
+function yOf(pos) { return STAFF_BOT - pos * HS; }
+
+// Returns treble-clef staff position (diatonic steps from E4 bottom line) for scale degree d
+function degreeStaffPos(d) {
+    const html   = currentKey.notes[d];
+    const letter = html[0];
+    const absSemi = currentKey.root + octaveShift + MAJOR_STEPS[d];
+    const natPC   = LETTER_PC[letter];
+    let naturalAbs = natPC, octave = 4;
+    while (naturalAbs + 6 < absSemi) { naturalAbs += 12; octave++; }
+    while (naturalAbs - 6 > absSemi) { naturalAbs -= 12; octave--; }
+    return LETTER_BASE_POS[letter] + (octave - 4) * 7;
+}
+
+function buildStaff(showNotes) {
+    const wrap = document.getElementById('staff-wrap');
+    const containerW = Math.round(wrap.getBoundingClientRect().width) || 900;
+
+    const ns = currentKey.sharps, nf = currentKey.flats;
+    const SVG_H = 130;
+    const SVG_W = containerW;
+
+    // Header geometry
+    const keySigStart = 56;
+    const keySigW     = (ns + nf) * 11;
+    const timeSigX    = keySigStart + keySigW + 6;
+    const noteAreaX   = timeSigX + 32;
+
+    // Distribute note slots to fill the container exactly
+    const RIGHT_MARGIN = 16;
+    const totalSlots  = numMeasures * 4;
+    const noteSlotW   = Math.max(30, (SVG_W - noteAreaX - RIGHT_MARGIN) / totalSlots);
+    const measureW    = noteSlotW * 4;
+
+    function noteX(m, b) { return noteAreaX + m * measureW + (b + 0.5) * noteSlotW; }
+
+    const parts = [];
+    const add = s => parts.push(s);
+
+    add(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}">`);
+    add(`<rect width="${SVG_W}" height="${SVG_H}" fill="#f5f0e8"/>`);
+
+    // Five staff lines (full width)
+    for (let i = 0; i < 5; i++) {
+        const y = STAFF_TOP + i * LS;
+        add(`<line x1="20" y1="${y}" x2="${SVG_W - 10}" y2="${y}" stroke="#444" stroke-width="1.2"/>`);
+    }
+
+    // Treble clef
+    add(`<text x="2" y="${STAFF_BOT+6}" font-size="72" fill="#222" ` +
+        `font-family="'Segoe UI Symbol','FreeSerif','Symbola','Noto Music',serif">&#119070;</text>`);
+
+    // Key signature
+    if (ns > 0) {
+        for (let i = 0; i < ns; i++) {
+            const x = keySigStart + i * 11, y = yOf(SHARP_SIG_POS[i]);
+            add(`<text x="${x}" y="${y+7}" font-size="20" font-weight="bold" fill="#111" font-family="serif">&#9839;</text>`);
+        }
+    } else if (nf > 0) {
+        for (let i = 0; i < nf; i++) {
+            const x = keySigStart + i * 11, y = yOf(FLAT_SIG_POS[i]);
+            add(`<text x="${x}" y="${y+4}" font-size="22" fill="#111" font-family="serif">&#9837;</text>`);
+        }
+    }
+
+    // Time signature 4/4
+    add(`<text x="${timeSigX + 2}" y="46" font-size="20" font-weight="bold" fill="#222" font-family="serif">4</text>`);
+    add(`<text x="${timeSigX + 2}" y="70" font-size="20" font-weight="bold" fill="#222" font-family="serif">4</text>`);
+
+    // Opening bar line
+    add(`<line x1="${noteAreaX - 5}" y1="${STAFF_TOP}" x2="${noteAreaX - 5}" y2="${STAFF_BOT}" stroke="#555" stroke-width="1.5"/>`);
+
+    if (showNotes && melody.length) {
+        for (let m = 0; m < numMeasures; m++) {
+            // Bar line before each measure (after the first)
+            if (m > 0) {
+                const bx = Math.round(noteAreaX + m * measureW);
+                add(`<line x1="${bx}" y1="${STAFF_TOP}" x2="${bx}" y2="${STAFF_BOT}" stroke="#555" stroke-width="1.5"/>`);
+            }
+
+            for (let b = 0; b < 4; b++) {
+                const ni  = m * 4 + b;
+                const pos = degreeStaffPos(melody[ni]);
+                const nx  = Math.round(noteX(m, b));
+                const ny  = yOf(pos);
+
+                // Ledger lines below staff
+                for (let p = -2; p >= pos; p -= 2) {
+                    const ly = yOf(p);
+                    add(`<line x1="${nx-10}" y1="${ly}" x2="${nx+10}" y2="${ly}" stroke="#444" stroke-width="1.2"/>`);
+                }
+                // Ledger lines above staff
+                for (let p = 10; p <= pos; p += 2) {
+                    const ly = yOf(p);
+                    add(`<line x1="${nx-10}" y1="${ly}" x2="${nx+10}" y2="${ly}" stroke="#444" stroke-width="1.2"/>`);
+                }
+
+                // Highlight ring
+                add(`<circle id="hl-${ni}" cx="${nx}" cy="${ny}" r="10" fill="none" ` +
+                    `stroke="#4070cc" stroke-width="2.5" opacity="0"/>`);
+
+                // Note head
+                add(`<ellipse cx="${nx}" cy="${ny}" rx="7" ry="5.5" fill="#111" ` +
+                    `transform="rotate(-20,${nx},${ny})"/>`);
+
+                // Stem
+                if (pos < 4) {
+                    add(`<line x1="${nx+6}" y1="${ny-1}" x2="${nx+6}" y2="${ny-32}" stroke="#111" stroke-width="1.5"/>`);
+                } else {
+                    add(`<line x1="${nx-6}" y1="${ny+1}" x2="${nx-6}" y2="${ny+32}" stroke="#111" stroke-width="1.5"/>`);
+                }
+            }
+        }
+
+        // Final double bar line
+        const fx = Math.round(noteAreaX + numMeasures * measureW);
+        add(`<line x1="${fx}"   y1="${STAFF_TOP}" x2="${fx}"   y2="${STAFF_BOT}" stroke="#555" stroke-width="1.5"/>`);
+        add(`<line x1="${fx+4}" y1="${STAFF_TOP}" x2="${fx+4}" y2="${STAFF_BOT}" stroke="#111" stroke-width="3"/>`);
+    }
+
+    add('</svg>');
+    document.getElementById('staff-wrap').innerHTML = parts.join('');
+}
+
+// ── Play indicator dots ────────────────────────────────────────────────────────
+function buildDots() {
+    const c = document.getElementById('play-indicator');
+    c.innerHTML = '';
+    for (let m = 0; m < numMeasures; m++) {
+        if (m > 0) {
+            const sep = document.createElement('div');
+            sep.className = 'note-dot sep';
+            c.appendChild(sep);
+        }
+        for (let b = 0; b < 4; b++) {
+            const dot = document.createElement('div');
+            dot.className = 'note-dot';
+            dot.id = `dot-${m * 4 + b}`;
+            c.appendChild(dot);
+        }
+    }
+}
+
+function clearHighlights() {
+    document.querySelectorAll('.note-dot').forEach(d => d.classList.remove('active'));
+    // SVG highlight rings
+    for (let i = 0; i < numMeasures * 4; i++) {
+        const el = document.getElementById(`hl-${i}`);
+        if (el) el.setAttribute('opacity', '0');
+    }
+}
+
+function highlightNote(i) {
+    clearHighlights();
+    const dot = document.getElementById(`dot-${i}`);
+    if (dot) dot.classList.add('active');
+    const hl = document.getElementById(`hl-${i}`);
+    if (hl) hl.setAttribute('opacity', '0.85');
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function setStatus(html) { document.getElementById('status').innerHTML = html; }
+
+function updateKeyLabel() {
+    document.getElementById('key-label').innerHTML =
+        `${currentKey.name} Major`;
+}
+
+// ── Main actions ──────────────────────────────────────────────────────────────
+async function doGenerate() {
+    if (actx.state !== 'running') await actx.resume();
+    stopAll();
+    melody = generateMelody();
+    buildDots();
+    buildStaff(true);
+    clearHighlights();
+    phase = 'READY';
+    updateKeyLabel();
+
+    if (scaleOnGenerate) {
+        setStatus('Listen to the scale&hellip;');
+        playScale(() => {
+            setStatus('Now sing! &nbsp; &#8595; scale &nbsp;|&nbsp; &#8592; check &nbsp;|&nbsp; &#8594; new');
+        });
+    } else {
+        setStatus('Now sing! &nbsp; &#8595; scale &nbsp;|&nbsp; &#8592; check &nbsp;|&nbsp; &#8594; new');
+    }
+}
+
+async function doCheck() {
+    if (phase === 'IDLE') return;
+    if (actx.state !== 'running') await actx.resume();
+    stopAll();
+    clearHighlights();
+    phase = 'PLAYING';
+    setStatus('Playing melody&hellip;');
+    playMelody(
+        i => highlightNote(i),
+        () => {
+            clearHighlights();
+            phase = 'READY';
+            setStatus('How did you do? &nbsp; &#8595; scale &nbsp;|&nbsp; &#8592; again &nbsp;|&nbsp; &#8594; new');
+        }
+    );
+}
+
+async function doScale() {
+    if (actx.state !== 'running') await actx.resume();
+    stopAll();
+    setStatus('Playing scale&hellip;');
+    playScale(() => {
+        setStatus(phase === 'IDLE'
+            ? 'Press &#8594; to generate a melody'
+            : 'Now sing! &nbsp; &#8595; scale &nbsp;|&nbsp; &#8592; check &nbsp;|&nbsp; &#8594; new');
+    });
+}
+
+// ── Key bindings ──────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+    if (actx.state === 'suspended') actx.resume();
+    if (document.getElementById('settings-panel').style.display === 'block') {
+        if (e.key === 'Escape') closeSettings();
+        return;
+    }
+    if (e.key === 'ArrowRight') { e.preventDefault(); doGenerate(); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); doCheck(); }
+    if (e.key === 'ArrowDown')  { e.preventDefault(); doScale(); }
+});
+
+document.getElementById('btn-next').addEventListener('click', e => { e.currentTarget.blur(); doGenerate(); });
+document.getElementById('btn-check').addEventListener('click', e => { e.currentTarget.blur(); doCheck(); });
+document.getElementById('btn-scale').addEventListener('click', e => { e.currentTarget.blur(); doScale(); });
+
+// ── Settings panel ────────────────────────────────────────────────────────────
+function openSettings()  {
+    document.getElementById('settings-panel').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+function closeSettings() {
+    document.getElementById('settings-panel').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+document.getElementById('settings-btn').addEventListener('click', openSettings);
+document.getElementById('close-btn').addEventListener('click', closeSettings);
+document.getElementById('overlay').addEventListener('click', closeSettings);
+
+// Key buttons (single-select)
+const keyBtns = document.getElementById('key-btns');
+KEYS.forEach((k, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (i === 0 ? ' on' : '');
+    btn.innerHTML = k.name;
+    btn.addEventListener('click', () => {
+        currentKey = k;
+        document.querySelectorAll('#key-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+        updateKeyLabel();
+        if (melody.length) buildStaff(true);
+    });
+    keyBtns.appendChild(btn);
+});
+
+// Range buttons
+document.getElementById('range-btns').addEventListener('click', e => {
+    const btn = e.target.closest('[data-range]');
+    if (!btn) return;
+    octaveShift = parseInt(btn.dataset.range);
+    document.querySelectorAll('#range-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+    if (melody.length) buildStaff(true);
+});
+
+// Scale-on-generate toggle
+document.getElementById('scalecheck-btns').addEventListener('click', e => {
+    const btn = e.target.closest('[data-sc]');
+    if (!btn) return;
+    scaleOnGenerate = btn.dataset.sc === 'yes';
+    document.querySelectorAll('#scalecheck-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+});
+
+// Measures buttons
+document.getElementById('measures-btns').addEventListener('click', e => {
+    const btn = e.target.closest('[data-m]');
+    if (!btn) return;
+    numMeasures = parseInt(btn.dataset.m);
+    document.querySelectorAll('#measures-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+    buildDots();
+    if (melody.length) {
+        melody = generateMelody();
+        buildStaff(true);
+    }
+});
+
+// Interval buttons
+document.getElementById('interval-btns').addEventListener('click', e => {
+    const btn = e.target.closest('[data-iv]');
+    if (!btn) return;
+    maxInterval = parseInt(btn.dataset.iv);
+    document.querySelectorAll('#interval-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+});
+
+// ── Tempo knob ────────────────────────────────────────────────────────────────
+function updateKnob() {
+    const t = Math.round(tempo);
+    document.getElementById('tempo-bpm').textContent = t;
+    const ratio = (t - TEMPO_MIN) / (TEMPO_MAX - TEMPO_MIN);
+    document.getElementById('knob-fill').setAttribute('stroke-dasharray',
+        `${(ratio * KNOB_ARC).toFixed(2)} ${KNOB_CIRC}`);
+    document.getElementById('knob-indicator').setAttribute('transform',
+        `rotate(${(-135 + ratio * 270).toFixed(1)})`);
+}
+
+const knobEl = document.getElementById('tempo-knob');
+let knobDragging = false, knobLastAngle = 0;
+
+function knobAngle(e) {
+    const r = knobEl.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const px = e.touches ? e.touches[0].clientX : e.clientX;
+    const py = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
+}
+function applyKnobDelta(e) {
+    const a = knobAngle(e);
+    let d = a - knobLastAngle;
+    if (d > 180) d -= 360;
+    if (d < -180) d += 360;
+    knobLastAngle = a;
+    tempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, tempo + d * (TEMPO_MAX - TEMPO_MIN) / 270));
+    updateKnob();
+}
+
+knobEl.addEventListener('mousedown', e => { knobDragging = true; knobLastAngle = knobAngle(e); knobEl.style.cursor = 'grabbing'; e.preventDefault(); });
+knobEl.addEventListener('touchstart', e => { knobDragging = true; knobLastAngle = knobAngle(e); e.preventDefault(); }, {passive:false});
+document.addEventListener('mousemove', e => { if (knobDragging) applyKnobDelta(e); });
+document.addEventListener('touchmove', e => { if (knobDragging) applyKnobDelta(e); }, {passive:false});
+document.addEventListener('mouseup', () => { knobDragging = false; knobEl.style.cursor = 'grab'; });
+document.addEventListener('touchend', () => { knobDragging = false; });
+knobEl.addEventListener('wheel', e => {
+    e.preventDefault();
+    tempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, tempo - Math.sign(e.deltaY) * 2));
+    updateKnob();
+}, {passive:false});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+updateKnob();
+updateKeyLabel();
+buildDots();
+buildStaff(false);
+
+window.addEventListener('resize', () => buildStaff(melody.length > 0));
+</script>
+</body>
+</html>

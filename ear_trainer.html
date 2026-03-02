@@ -273,11 +273,21 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+        #midi-status {
+            position: fixed; bottom: 14px; right: 14px;
+            background: #252540; border: 1px solid #3a3a5c;
+            color: #888; border-radius: 12px; padding: 4px 10px;
+            font-size: 11px; font-family: monospace; z-index: 999;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        #midi-status.on { color: #a0c4ff; border-color: #a0c4ff; }
+        #midi-status.err { color: #ff8080; border-color: #ff8080; }
     </style>
 </head>
 
 <body>
     <button id="settings-btn">&#9881; Settings</button>
+    <div id="midi-status">MIDI: off</div>
 
     <div id="overlay"></div>
     <div id="settings-panel">
@@ -311,6 +321,16 @@
         </div>
 
         <div class="setting-group">
+            <div class="lbl">Note Range</div>
+            <div class="pill-group" id="nr-btns">
+                <button class="pill on" data-nr="same">Same</button>
+                <button class="pill" data-nr="above">+ Above</button>
+                <button class="pill" data-nr="below">+ Below</button>
+                <button class="pill" data-nr="any">Any</button>
+            </div>
+        </div>
+
+        <div class="setting-group">
             <div class="lbl">Scales</div>
             <div class="scale-grid" id="scale-grid"></div>
             <div class="scale-footer">
@@ -331,6 +351,7 @@
     <div id="staff"></div>
     <div class="controls">
         <button class="ctrl-btn" id="btn-replay"><span class="key">&#8592;</span> Replay</button>
+        <button class="ctrl-btn" id="btn-notes-only"><span class="key">&#8595;</span> Scale only</button>
         <button class="ctrl-btn" id="btn-advance"><span class="key">&#8594;</span> Answer / Next</button>
     </div>
 
@@ -400,6 +421,7 @@
         let tempo = 100;
         let directionMode = 'up';   // 'up' | 'down' | 'both'
         let quizMode = 'scale'; // 'scale' | 'free1' | 'free2' | 'freeboth'
+        let noteRange = 'same'; // 'same' | 'above' | 'below'
         let skipScale = false;
         let currentScale = SCALES[0];
         let currentDir = 'up';
@@ -445,9 +467,10 @@
             return scale.name.includes('&#9837;') || scale.name === 'F';
         }
         function noteNameAt(semitone) {
-            const idx = SCALE_STEPS.indexOf(semitone);
+            const inOctave = ((semitone % 12) + 12) % 12;
+            const idx = SCALE_STEPS.indexOf(inOctave);
             if (idx !== -1) return currentScale.notes[idx];
-            const abs = (currentScale.root + semitone) % 12;
+            const abs = (currentScale.root + inOctave) % 12;
             return (scaleUsesFlats(currentScale) ? FLAT_NAMES : SHARP_NAMES)[abs];
         }
         // --- Staff notation helpers ---
@@ -501,20 +524,28 @@
             return '';
         }
 
-        function pickOneSemitone(free) {
-            return free
-                ? CHROMATIC_ALL[Math.floor(Math.random() * 12)]
-                : SCALE_STEPS[Math.floor(Math.random() * 7)];
+        function buildNotePool(isFree) {
+            const base = isFree ? Array.from({ length: 12 }, (_, i) => i) : SCALE_STEPS;
+            if (noteRange === 'same')  return base;
+            if (noteRange === 'above') return [...base, ...base.map(n => n + 12)];
+            if (noteRange === 'below') return [...base.map(n => n - 12), ...base];
+            // 'any': all three octaves; pickNewNotes enforces ≤12 semitones apart
+            return [...base.map(n => n - 12), ...base, ...base.map(n => n + 12)];
         }
 
         function buildStaffSVG() {
-            const W = 380, H = 115;
+            const W = 380;
             const LS = 12;  // line spacing (px between staff lines)
             const HS = 6;   // half-step height (px per diatonic step)
             const sTop = 28; // y of top staff line (F5)
             const sBot = 76; // y of bottom staff line (E4)
 
             function yOf(pos) { return sBot - pos * HS; }
+
+            // Expand height if notes fall below the staff
+            const notePositions = [noteStaffPos(quizNotes[0]), noteStaffPos(quizNotes[1])];
+            const minPos = Math.min(...notePositions);
+            const H = minPos < -2 ? Math.max(115, yOf(minPos) + 30) : 115;
 
             const ns = currentScale.sharps;
             const nf = currentScale.flats;
@@ -604,17 +635,17 @@
         }
 
         // Step-wise scale playback so tempo can change mid-round
-        function stepScale() {
+        // scaleOnly=true: stop after scale instead of proceeding to quiz notes
+        function stepScale(scaleOnly) {
             const steps = currentDir === 'up' ? STEPS : [...STEPS].reverse();
             if (scaleIndex >= steps.length) {
-                // Finished scale: brief gap, then start quiz notes
-                setStatus('Listen...');
-                const beat = 60 / tempo;
-                const gapMs = 0.5 * 1000; // fixed half-second gap
-                playbackTimer = setTimeout(() => {
-                    quizPhase = 0;
-                    stepQuiz();
-                }, gapMs);
+                if (scaleOnly) {
+                    setStatus('Playback complete');
+                    playing = false;
+                } else {
+                    setStatus('Listen...');
+                    playbackTimer = setTimeout(() => { quizPhase = 0; stepQuiz(); }, 500);
+                }
                 return;
             }
             const beat = 60 / tempo;
@@ -622,7 +653,7 @@
             const step = steps[scaleIndex];
             playNote(noteFreq(currentScale.root, step), actx.currentTime + 0.01, dur);
             scaleIndex++;
-            playbackTimer = setTimeout(stepScale, beat * 1000);
+            playbackTimer = setTimeout(() => stepScale(scaleOnly), beat * 1000);
         }
 
         function stepQuiz() {
@@ -676,12 +707,17 @@
             currentDir = directionMode === 'both'
                 ? (Math.random() < 0.5 ? 'up' : 'down')
                 : directionMode;
-            // Pick two distinct semitone offsets (free or in-scale per quizMode)
+            // Pick two notes from appropriate pool, at most 12 semitones apart
             const freeA = quizMode === 'free1' || quizMode === 'freeboth';
             const freeB = quizMode === 'free2' || quizMode === 'freeboth';
-            let a, b;
-            a = pickOneSemitone(freeA);
-            do { b = pickOneSemitone(freeB); } while (b === a);
+            const poolA = buildNotePool(freeA);
+            const poolB = buildNotePool(freeB);
+            let a, b, attempts = 0;
+            do {
+                a = poolA[Math.floor(Math.random() * poolA.length)];
+                b = poolB[Math.floor(Math.random() * poolB.length)];
+                attempts++;
+            } while ((b === a || Math.abs(a - b) > 12) && attempts < 100);
             quizNotes = [a, b];
             updateLabel();
         }
@@ -707,6 +743,17 @@
                 setStatus('Playing scale...');
                 stepScale();
             }
+        }
+
+        // --- Replay scale only ---
+        async function replayScaleOnly() {
+            if (!hasStarted) { await startSession(true); return; }
+            stopAll();
+            if (actx.state !== 'running') await actx.resume();
+            playing = true;
+            scaleIndex = 0;
+            setStatus('Playing scale...');
+            stepScale(true);
         }
 
         // --- Shared advance action (Enter key or click) ---
@@ -742,12 +789,19 @@
                 startSession(!hasStarted);
             } else if (e.key === 'ArrowRight') {
                 advance();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                replayScaleOnly();
             }
         });
 
         document.getElementById('btn-replay').addEventListener('click', e => {
             e.currentTarget.blur();
             startSession(!hasStarted);
+        });
+        document.getElementById('btn-notes-only').addEventListener('click', e => {
+            e.currentTarget.blur();
+            replayScaleOnly();
         });
         document.getElementById('btn-advance').addEventListener('click', e => {
             e.currentTarget.blur();
@@ -792,6 +846,14 @@
             if (!btn) return;
             skipScale = btn.dataset.sp === 'no';
             document.querySelectorAll('#sp-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+        });
+
+        // Note range buttons
+        document.getElementById('nr-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-nr]');
+            if (!btn) return;
+            noteRange = btn.dataset.nr;
+            document.querySelectorAll('#nr-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
         });
 
         // Build scale grid (multi-select)
@@ -890,6 +952,68 @@
 
         updateKnob();
         updateLabel();
+
+        // ── MIDI Piano ──────────────────────────────────────────────────────────
+        const midiGain = actx.createGain();
+        midiGain.gain.value = 0.6;
+        midiGain.connect(actx.destination);
+        const midiNotes = {};
+
+        function midiNoteOn(note, vel) {
+            if (actx.state === 'suspended') actx.resume();
+            if (midiNotes[note]) return;
+            const freq = 440 * Math.pow(2, (note - 69) / 12);
+            const osc = actx.createOscillator();
+            const g = actx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            osc.connect(g); g.connect(midiGain);
+            const now = actx.currentTime;
+            const peak = (vel / 127) * 0.7;
+            g.gain.setValueAtTime(0, now);
+            g.gain.linearRampToValueAtTime(peak, now + 0.008);
+            osc.start(now);
+            midiNotes[note] = { osc, g };
+        }
+
+        function midiNoteOff(note) {
+            const n = midiNotes[note];
+            if (!n) return;
+            const now = actx.currentTime;
+            n.g.gain.cancelScheduledValues(now);
+            n.g.gain.setValueAtTime(n.g.gain.value, now);
+            n.g.gain.linearRampToValueAtTime(0, now + 0.4);
+            n.osc.stop(now + 0.41);
+            delete midiNotes[note];
+        }
+
+        function onMidiMsg(e) {
+            const [cmd, note, vel] = e.data;
+            if (cmd === 144 && vel > 0) midiNoteOn(note, vel);
+            else if (cmd === 128 || (cmd === 144 && vel === 0)) midiNoteOff(note);
+        }
+
+        function connectMidi(access) {
+            const el = document.getElementById('midi-status');
+            const ins = [...access.inputs.values()];
+            ins.forEach(i => { i.onmidimessage = onMidiMsg; });
+            el.textContent = ins.length ? 'MIDI: connected' : 'MIDI: no device';
+            el.className = ins.length ? 'on' : '';
+            access.onstatechange = () => {
+                const ins2 = [...access.inputs.values()];
+                ins2.forEach(i => { i.onmidimessage = onMidiMsg; });
+                el.textContent = ins2.length ? 'MIDI: connected' : 'MIDI: no device';
+                el.className = ins2.length ? 'on' : '';
+            };
+        }
+
+        if (navigator.requestMIDIAccess) {
+            document.getElementById('midi-status').textContent = 'MIDI: searching\u2026';
+            navigator.requestMIDIAccess().then(connectMidi, () => {
+                const el = document.getElementById('midi-status');
+                el.textContent = 'MIDI: denied'; el.className = 'err';
+            });
+        }
     </script>
 </body>
 
