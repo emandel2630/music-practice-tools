@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Rhythm Trainer</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: monospace;
@@ -18,7 +23,12 @@
             padding: 32px 16px 48px;
         }
 
-        h1 { color: #a0c4ff; letter-spacing: 4px; margin-bottom: 10px; font-size: 2.8em; }
+        h1 {
+            color: #a0c4ff;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+        }
 
         #status {
             font-size: 1.5em;
@@ -48,7 +58,10 @@
             align-items: center;
             gap: 8px;
         }
-        .ctrl-btn:hover { color: #aaa; }
+
+        .ctrl-btn:hover {
+            color: #aaa;
+        }
 
         .key {
             background: #333;
@@ -71,13 +84,17 @@
             font-family: monospace;
             font-size: 0.85em;
         }
-        #settings-btn:hover { background: #353560; color: #ccc; }
+
+        #settings-btn:hover {
+            background: #353560;
+            color: #ccc;
+        }
 
         #overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
 
@@ -103,7 +120,9 @@
             text-transform: uppercase;
         }
 
-        .setting-group { margin-bottom: 18px; }
+        .setting-group {
+            margin-bottom: 18px;
+        }
 
         .setting-group .lbl {
             color: #666;
@@ -113,7 +132,11 @@
             margin-bottom: 8px;
         }
 
-        .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .pill-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
 
         .pill {
             background: #1e2a4a;
@@ -125,12 +148,65 @@
             font-family: monospace;
             font-size: 0.85em;
         }
-        .pill:hover { background: #253060; color: #aaa; }
-        .pill.on { background: #2a4a9a; color: #ddeeff; border-color: #4070cc; }
 
-        .tempo-row { display: flex; align-items: center; gap: 18px; }
-        .tempo-val { font-size: 2em; color: #a0c4ff; text-align: center; min-width: 44px; line-height: 1; }
-        .tempo-unit { font-size: 0.45em; color: #555; display: block; letter-spacing: 1px; }
+        .pill:hover {
+            background: #253060;
+            color: #aaa;
+        }
+
+        .pill.on {
+            background: #2a4a9a;
+            color: #ddeeff;
+            border-color: #4070cc;
+        }
+
+        .tempo-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .tempo-val {
+            font-size: 2em;
+            color: #a0c4ff;
+            text-align: center;
+            min-width: 44px;
+            line-height: 1;
+        }
+
+        .tempo-unit {
+            font-size: 0.45em;
+            color: #555;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        .volume-row {
+            display: flex;
+            gap: 32px;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .volume-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .volume-group .lbl {
+            color: #666;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .volume-group input[type="range"] {
+            width: 130px;
+        }
 
         #close-btn {
             margin-top: 18px;
@@ -143,7 +219,10 @@
             font-family: monospace;
             font-size: 0.85em;
         }
-        #close-btn:hover { background: #353560; }
+
+        #close-btn:hover {
+            background: #353560;
+        }
 
         #quick-controls {
             display: flex;
@@ -153,7 +232,10 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        #quick-controls .setting-group { margin-bottom: 0; }
+
+        #quick-controls .setting-group {
+            margin-bottom: 0;
+        }
 
         #beat-dots {
             display: flex;
@@ -173,9 +255,21 @@
             border: 1px solid #333;
             transition: background 0.04s, box-shadow 0.04s;
         }
-        .beat-dot.accent { background: #1a2a5a; border-color: #4060aa; }
-        .beat-dot.active { background: #2a4a9a; box-shadow: 0 0 8px #4070cc; }
-        .beat-dot.accent.active { background: #a0c4ff; box-shadow: 0 0 14px #a0c4ff; }
+
+        .beat-dot.accent {
+            background: #1a2a5a;
+            border-color: #4060aa;
+        }
+
+        .beat-dot.active {
+            background: #2a4a9a;
+            box-shadow: 0 0 8px #4070cc;
+        }
+
+        .beat-dot.accent.active {
+            background: #a0c4ff;
+            box-shadow: 0 0 14px #a0c4ff;
+        }
 
         #staff-container {
             width: 94vw;
@@ -183,906 +277,1396 @@
             margin: 8px auto;
             background: #f5f0e8;
             border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             min-height: 110px;
         }
 
-        #staff-wrap { width: 100%; overflow-x: auto; }
-        #rhythm-staff { display: block; }
+        #staff-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
 
-        #staff-wrap.obscured { filter: blur(60px); pointer-events: none; user-select: none; }
-        #reveal-btn { display: none; }
+        #rhythm-staff {
+            display: block;
+        }
+
+        #staff-wrap.obscured {
+            filter: blur(60px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        #reveal-btn {
+            display: none;
+        }
+
         #reveal-btn.visible {
             display: inline-block;
-            background: #2a4a9a; color: #ddeeff;
-            border: 1px solid #4070cc; padding: 6px 22px;
-            border-radius: 20px; cursor: pointer;
-            font-family: monospace; font-size: 1em; margin: 0 16px;
+            background: #2a4a9a;
+            color: #ddeeff;
+            border: 1px solid #4070cc;
+            padding: 6px 22px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 1em;
+            margin: 0 16px;
         }
-        #reveal-btn.visible:hover { background: #3a5aaa; }
+
+        #reveal-btn.visible:hover {
+            background: #3a5aaa;
+        }
+
         #midi-status {
-            position: fixed; bottom: 14px; right: 14px;
-            background: #252540; border: 1px solid #3a3a5c;
-            color: #888; border-radius: 12px; padding: 4px 10px;
-            font-size: 11px; font-family: monospace; z-index: 999;
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            background: #252540;
+            border: 1px solid #3a3a5c;
+            color: #888;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-family: monospace;
+            z-index: 999;
             transition: color 0.3s, border-color 0.3s;
         }
-        #midi-status.on { color: #a0c4ff; border-color: #a0c4ff; }
-        #midi-status.err { color: #ff8080; border-color: #ff8080; }
+
+        #midi-status.on {
+            color: #a0c4ff;
+            border-color: #a0c4ff;
+        }
+
+        #midi-status.err {
+            color: #ff8080;
+            border-color: #ff8080;
+        }
+
+        #tap-score {
+            font-size: 1.1em;
+            min-height: 1.4em;
+            color: #a0c4ff;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        #tap-indicator {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #252540;
+            border: 2px solid #3a3a5c;
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 4px;
+            transition: background 0.04s, border-color 0.04s;
+            flex-shrink: 0;
+        }
+
+        #tap-indicator.hit {
+            background: #a0c4ff;
+            border-color: #a0c4ff;
+        }
+
+        #btn-tap {
+            display: none;
+        }
+
+        #btn-tap.visible {
+            display: flex;
+        }
+
+        #tap-tol-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #3a3a5c;
+            outline: none;
+        }
+        #tap-tol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #a0c4ff;
+            cursor: pointer;
+        }
+        #tap-tol-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #a0c4ff;
+            cursor: pointer;
+            border: none;
+        }
+        #tap-tol-val {
+            color: #a0c4ff;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        #btn-tap-playback {
+            display: none;
+            background: #1e2a4a;
+            color: #888;
+            border: 1px solid #334;
+            padding: 4px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 1em;
+            margin: 2px 4px;
+        }
+
+        #btn-tap-playback.visible {
+            display: inline-block;
+        }
+
+        #btn-tap-playback:hover {
+            background: #253060;
+            color: #aaa;
+        }
+
+        #btn-tap-playback.playing {
+            background: #1a4a2a;
+            color: #44ff88;
+            border-color: #44ff88;
+        }
     </style>
 </head>
+
 <body>
 
-<button id="settings-btn">&#9881; Settings</button>
-<div id="midi-status">MIDI: off</div>
+    <button id="settings-btn">&#9881; Settings</button>
+    <div id="midi-status">MIDI: off</div>
 
-<div id="overlay"></div>
-<div id="settings-panel">
-    <h2>Settings</h2>
-    <div class="setting-group">
-        <div class="lbl">Notes</div>
-        <div class="pill-group" id="note-type-btns">
-            <button class="pill"    data-note="whole">&#9675; Whole</button>
-            <button class="pill"    data-note="half">&#9675; Half</button>
-            <button class="pill on" data-note="quarter">&#9833; Quarter</button>
-            <button class="pill on" data-note="eighth">&#9834; Eighth</button>
-            <button class="pill"    data-note="sixteenth">&#9834;&#9834; 16th</button>
-            <button class="pill"    data-note="dotHalf">&#9675;. Dot Half</button>
-            <button class="pill"    data-note="dotQuarter">&#9833;. Dot Q</button>
-            <button class="pill"    data-note="dotEighth">&#9834;. Dot 8th</button>
-            <button class="pill"    data-note="triplet">3 Triplet</button>
+    <div id="overlay"></div>
+    <div id="settings-panel">
+        <h2>Settings</h2>
+        <div class="setting-group">
+            <div class="lbl">Notes</div>
+            <div class="pill-group" id="note-type-btns">
+                <button class="pill" data-note="whole">&#9675; Whole</button>
+                <button class="pill" data-note="half">&#9675; Half</button>
+                <button class="pill on" data-note="quarter">&#9833; Quarter</button>
+                <button class="pill on" data-note="eighth">&#9834; Eighth</button>
+                <button class="pill" data-note="sixteenth">&#9834;&#9834; 16th</button>
+                <button class="pill" data-note="dotHalf">&#9675;. Dot Half</button>
+                <button class="pill" data-note="dotQuarter">&#9833;. Dot Q</button>
+                <button class="pill" data-note="dotEighth">&#9834;. Dot 8th</button>
+                <button class="pill" data-note="triplet">3 Triplet</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Rests</div>
+            <div class="pill-group" id="rest-btns">
+                <button class="pill on" data-rest="yes">Include Rests</button>
+                <button class="pill" data-rest="no">Notes Only</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Bars</div>
+            <div class="pill-group" id="bars-btns">
+                <button class="pill" data-bars="1">1</button>
+                <button class="pill on" data-bars="2">2</button>
+                <button class="pill" data-bars="4">4</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Tap Accuracy <span id="tap-tol-val">±1 sixteenth</span></div>
+            <input type="range" id="tap-tol-slider" min="0.5" max="3" step="0.25" value="1">
+        </div>
+        <button id="close-btn">Close</button>
+    </div>
+
+    <h1>Rhythm Trainer</h1>
+
+    <div id="quick-controls">
+        <div class="setting-group">
+            <div class="lbl">Time Sig</div>
+            <div class="pill-group" id="timesig-btns">
+                <button class="pill on" data-ts="4/4">4/4</button>
+                <button class="pill" data-ts="3/4">3/4</button>
+                <button class="pill" data-ts="2/4">2/4</button>
+                <button class="pill" data-ts="6/8">6/8</button>
+                <button class="pill" data-ts="5/4">5/4</button>
+                <button class="pill" data-ts="7/8">7/8</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Subdivision</div>
+            <div class="pill-group" id="subdiv-btns">
+                <button class="pill on" data-subdiv="1">Off</button>
+                <button class="pill" data-subdiv="2">&#247;2</button>
+                <button class="pill" data-subdiv="3">&#247;3</button>
+                <button class="pill" data-subdiv="4">&#247;4</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Click</div>
+            <div class="pill-group">
+                <button class="pill on" id="met-mute-btn">&#9836; Sound</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="lbl">Mode</div>
+            <div class="pill-group">
+                <button class="pill on" id="mode-btn">Reading</button>
+            </div>
         </div>
     </div>
-    <div class="setting-group">
-        <div class="lbl">Rests</div>
-        <div class="pill-group" id="rest-btns">
-            <button class="pill on" data-rest="yes">Include Rests</button>
-            <button class="pill"    data-rest="no">Notes Only</button>
+
+    <div id="beat-dots"></div>
+
+    <div id="staff-container">
+        <div id="staff-wrap">
+            <svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="900" height="110"></svg>
         </div>
     </div>
-    <div class="setting-group">
-        <div class="lbl">Bars</div>
-        <div class="pill-group" id="bars-btns">
-            <button class="pill"    data-bars="1">1</button>
-            <button class="pill on" data-bars="2">2</button>
-            <button class="pill"    data-bars="4">4</button>
+
+    <div id="status">Press &#8594; to generate a rhythm</div>
+    <div id="tap-score"></div>
+    <div style="text-align:center;margin-top:6px">
+        <button id="btn-tap-playback">&#9654; My Taps</button>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn" id="btn-replay"><span class="key">&#8592;</span> Replay</button>
+        <button id="reveal-btn">&#128065; Reveal</button>
+        <button class="ctrl-btn" id="btn-tap"><div id="tap-indicator"></div><span class="key">SPACE</span> Tap</button>
+        <button class="ctrl-btn" id="btn-advance"><span class="key">&#8594;</span> Play / Next</button>
+    </div>
+
+    <div class="tempo-row" style="margin-top:32px">
+        <svg id="tempo-knob" width="90" height="90" viewBox="-45 -45 90 90"
+            style="cursor:grab;display:block;user-select:none">
+            <circle r="32" fill="none" stroke="#252540" stroke-width="7" stroke-linecap="round"
+                stroke-dasharray="150.80 201.06" transform="rotate(135)" />
+            <circle id="knob-fill" r="32" fill="none" stroke="#2a4a9a" stroke-width="7" stroke-linecap="round"
+                stroke-dasharray="56.55 201.06" transform="rotate(135)" />
+            <line x1="-28.3" y1="28.3" x2="-24.7" y2="24.7" stroke="#445" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="-36.9" y1="-15.3" x2="-32.3" y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="0" y1="-40" x2="0" y2="-35" stroke="#445" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="36.9" y1="-15.3" x2="32.3" y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round" />
+            <line x1="28.3" y1="28.3" x2="24.7" y2="24.7" stroke="#445" stroke-width="1.5" stroke-linecap="round" />
+            <circle r="26" fill="#1e2a4a" stroke="#334" stroke-width="1.5" />
+            <g id="knob-indicator">
+                <line x1="0" y1="-12" x2="0" y2="-22" stroke="#a0c4ff" stroke-width="2.5" stroke-linecap="round" />
+                <circle cx="0" cy="-22" r="2" fill="#a0c4ff" />
+            </g>
+        </svg>
+        <div class="tempo-val">
+            <span id="tempo-bpm">100</span>
+            <span class="tempo-unit">BPM</span>
         </div>
     </div>
-    <button id="close-btn">Close</button>
-</div>
 
-<h1>Rhythm Trainer</h1>
-
-<div id="quick-controls">
-    <div class="setting-group">
-        <div class="lbl">Time Sig</div>
-        <div class="pill-group" id="timesig-btns">
-            <button class="pill on" data-ts="4/4">4/4</button>
-            <button class="pill"    data-ts="3/4">3/4</button>
-            <button class="pill"    data-ts="2/4">2/4</button>
-            <button class="pill"    data-ts="6/8">6/8</button>
-            <button class="pill"    data-ts="5/4">5/4</button>
-            <button class="pill"    data-ts="7/8">7/8</button>
+    <div class="volume-row">
+        <div class="volume-group">
+            <div class="lbl">Metronome Vol</div>
+            <input type="range" id="met-vol" min="20" max="160" value="100">
+        </div>
+        <div class="volume-group">
+            <div class="lbl">Playback Vol</div>
+            <input type="range" id="play-vol" min="20" max="160" value="110">
         </div>
     </div>
-    <div class="setting-group">
-        <div class="lbl">Subdivision</div>
-        <div class="pill-group" id="subdiv-btns">
-            <button class="pill on" data-subdiv="1">Off</button>
-            <button class="pill"    data-subdiv="2">&#247;2</button>
-            <button class="pill"    data-subdiv="3">&#247;3</button>
-            <button class="pill"    data-subdiv="4">&#247;4</button>
-        </div>
-    </div>
-    <div class="setting-group">
-        <div class="lbl">Click</div>
-        <div class="pill-group">
-            <button class="pill on" id="met-mute-btn">&#9836; Sound</button>
-        </div>
-    </div>
-    <div class="setting-group">
-        <div class="lbl">Mode</div>
-        <div class="pill-group">
-            <button class="pill on" id="mode-btn">Reading</button>
-        </div>
-    </div>
-</div>
 
-<div id="beat-dots"></div>
+    <script>
+        // ── Constants ─────────────────────────────────────────────────────────────────
+        const TEMPO_MIN = 40, TEMPO_MAX = 200;
+        const KNOB_CIRC = 201.062, KNOB_ARC = 150.796;
 
-<div id="staff-container">
-    <div id="staff-wrap">
-        <svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="900" height="110"></svg>
-    </div>
-</div>
+        // Duration in 16th-note grid units
+        const DUR = {
+            whole: 16, half: 8, quarter: 4, eighth: 2, sixteenth: 1,
+            dotHalf: 12, dotQuarter: 6, dotEighth: 3
+        };
 
-<div id="status">Press &#8594; to generate a rhythm</div>
+        // Beats per bar, bar length in 16th units, beat length in 16th units
+        const TS = {
+            '4/4': { num: 4, den: 4, beats: 4, barU: 16, beatU: 4, compound: false },
+            '3/4': { num: 3, den: 4, beats: 3, barU: 12, beatU: 4, compound: false },
+            '2/4': { num: 2, den: 4, beats: 2, barU: 8, beatU: 4, compound: false },
+            '6/8': { num: 6, den: 8, beats: 2, barU: 12, beatU: 6, compound: true },
+            '5/4': { num: 5, den: 4, beats: 5, barU: 20, beatU: 4, compound: false },
+            '7/8': { num: 7, den: 8, beats: 7, barU: 14, beatU: 2, compound: false },
+        };
 
-<div class="controls">
-    <button class="ctrl-btn" id="btn-replay"><span class="key">&#8592;</span> Replay</button>
-    <button id="reveal-btn">&#128065; Reveal</button>
-    <button class="ctrl-btn" id="btn-advance"><span class="key">&#8594;</span> Play / Next</button>
-</div>
+        const WEIGHTS = {
+            whole: 1, half: 2, quarter: 6, eighth: 7, sixteenth: 4,
+            dotHalf: 1, dotQuarter: 3, dotEighth: 3, triplet: 2
+        };
 
-<div class="tempo-row" style="margin-top:32px">
-    <svg id="tempo-knob" width="90" height="90" viewBox="-45 -45 90 90"
-         style="cursor:grab;display:block;user-select:none">
-        <circle r="32" fill="none" stroke="#252540" stroke-width="7" stroke-linecap="round"
-            stroke-dasharray="150.80 201.06" transform="rotate(135)" />
-        <circle id="knob-fill" r="32" fill="none" stroke="#2a4a9a" stroke-width="7" stroke-linecap="round"
-            stroke-dasharray="56.55 201.06" transform="rotate(135)" />
-        <line x1="-28.3" y1="28.3"  x2="-24.7" y2="24.7"  stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="-36.9" y1="-15.3" x2="-32.3" y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="0"     y1="-40"   x2="0"     y2="-35"   stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="36.9"  y1="-15.3" x2="32.3"  y2="-13.4" stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="28.3"  y1="28.3"  x2="24.7"  y2="24.7"  stroke="#445" stroke-width="1.5" stroke-linecap="round"/>
-        <circle r="26" fill="#1e2a4a" stroke="#334" stroke-width="1.5"/>
-        <g id="knob-indicator">
-            <line x1="0" y1="-12" x2="0" y2="-22" stroke="#a0c4ff" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="0" cy="-22" r="2" fill="#a0c4ff"/>
-        </g>
-    </svg>
-    <div class="tempo-val">
-        <span id="tempo-bpm">100</span>
-        <span class="tempo-unit">BPM</span>
-    </div>
-</div>
+        // ── State ─────────────────────────────────────────────────────────────────────
+        const actx = new (window.AudioContext || window.webkitAudioContext)();
 
-<script>
-// ── Constants ─────────────────────────────────────────────────────────────────
-const TEMPO_MIN = 40, TEMPO_MAX = 200;
-const KNOB_CIRC = 201.062, KNOB_ARC = 150.796;
+        // Global gains for independent metronome vs playback volume
+        const metGain = actx.createGain();
+        const playGain = actx.createGain();
+        metGain.gain.value = 1.0;   // base metronome loudness
+        playGain.gain.value = 1.1;  // base rhythm playback loudness
+        metGain.connect(actx.destination);
+        playGain.connect(actx.destination);
 
-// Duration in 16th-note grid units
-const DUR = {
-    whole:16, half:8, quarter:4, eighth:2, sixteenth:1,
-    dotHalf:12, dotQuarter:6, dotEighth:3
-};
+        let tempo = 100;
+        let tsKey = '4/4';
+        let subdivPerBeat = 1;
+        let numBars = 2;
+        let allowedTypes = new Set(['quarter', 'eighth']);
+        let allowRests = true;
 
-// Beats per bar, bar length in 16th units, beat length in 16th units
-const TS = {
-    '4/4': { num:4, den:4, beats:4, barU:16, beatU:4, compound:false },
-    '3/4': { num:3, den:4, beats:3, barU:12, beatU:4, compound:false },
-    '2/4': { num:2, den:4, beats:2, barU: 8, beatU:4, compound:false },
-    '6/8': { num:6, den:8, beats:2, barU:12, beatU:6, compound:true  },
-    '5/4': { num:5, den:4, beats:5, barU:20, beatU:4, compound:false },
-    '7/8': { num:7, den:8, beats:7, barU:14, beatU:2, compound:false },
-};
+        // Metronome
+        let metOn = false, metTimer = null;
+        let metMuted = false;
+        let nextNoteTime = 0, curBeat = 0, curSubdiv = 0, globalTick = 0;
+        const AHEAD = 0.12, LOOK = 25;
 
-const WEIGHTS = {
-    whole:1, half:2, quarter:6, eighth:7, sixteenth:4,
-    dotHalf:1, dotQuarter:3, dotEighth:3, triplet:2
-};
+        // Session
+        let rhythm = [];       // array of bars
+        let hasRhythm = false;
+        let hasPlayed = false;
+        let dictMode = false;      // true = Dictation mode
+        let dictRevealed = false;  // true after user clicks Reveal
+        let tapTolMult = 1.0;      // tolerance window in sixteenth-note durations
 
-// ── State ─────────────────────────────────────────────────────────────────────
-const actx = new (window.AudioContext || window.webkitAudioContext)();
+        // Tap session (Reading mode)
+        let tapSessionActive = false;
+        let tapStartTime = 0;
+        let taps = [];
+        let tapTimers = [];
+        let tapOffsets = [];   // tap times relative to bar start, saved after scoring
 
-let tempo = 100;
-let tsKey = '4/4';
-let subdivPerBeat = 1;
-let numBars = 2;
-let allowedTypes = new Set(['quarter','eighth']);
-let allowRests = true;
+        // ── Audio ─────────────────────────────────────────────────────────────────────
+        function click(freq, vol, t) {
+            const o = actx.createOscillator(), g = actx.createGain();
+            o.connect(g); g.connect(metGain);
+            o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+            g.gain.setValueAtTime(0, t);
+            g.gain.linearRampToValueAtTime(vol, t + 0.005);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+            o.start(t); o.stop(t + 0.06);
+        }
 
-// Metronome
-let metOn = false, metTimer = null;
-let metMuted = false;
-let nextNoteTime = 0, curBeat = 0, curSubdiv = 0, globalTick = 0;
-const AHEAD = 0.12, LOOK = 25;
+        function woodblock(t) {
+            const sz = Math.ceil(actx.sampleRate * 0.08);
+            const buf = actx.createBuffer(1, sz, actx.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let i = 0; i < sz; i++) d[i] = Math.random() * 2 - 1;
+            const src = actx.createBufferSource(); src.buffer = buf;
+            const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 8;
+            const g = actx.createGain();
+            g.gain.setValueAtTime(0, t);
+            // Make rhythm hits clearly louder than the metronome clicks (reading mode)
+            g.gain.linearRampToValueAtTime(1.8, t + 0.003);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+            src.connect(bp); bp.connect(g); g.connect(playGain);
+            src.start(t); src.stop(t + 0.09);
+        }
 
-// Session
-let rhythm = [];       // array of bars
-let hasRhythm = false;
-let hasPlayed = false;
-let dictMode = false;      // true = Dictation mode
-let dictRevealed = false;  // true after user clicks Reveal
+        // High woodblock: higher-pitched click for "correct rhythm" in compare mode
+        // Dictation tone: same timbre and envelope as the ear trainer notes
+        function dictTone(t, durSec) {
+            const osc = actx.createOscillator();
+            const gain = actx.createGain();
+            osc.connect(gain); gain.connect(playGain);
+            osc.type = 'triangle';
+            // Fixed comfortable pitch around middle C (ear trainer uses varying pitches)
+            const C4 = 261.63;
+            osc.frequency.setValueAtTime(C4, t);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.35, t + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + durSec);
+            osc.start(t);
+            osc.stop(t + durSec);
+        }
 
-// ── Audio ─────────────────────────────────────────────────────────────────────
-function click(freq, vol, t) {
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.connect(g); g.connect(actx.destination);
-    o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
-    o.start(t); o.stop(t + 0.06);
-}
+        // ── Metronome ─────────────────────────────────────────────────────────────────
+        function tsInfo() { return TS[tsKey]; }
 
-function woodblock(t) {
-    const sz = Math.ceil(actx.sampleRate * 0.08);
-    const buf = actx.createBuffer(1, sz, actx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < sz; i++) d[i] = Math.random() * 2 - 1;
-    const src = actx.createBufferSource(); src.buffer = buf;
-    const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 8;
-    const g = actx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.85, t + 0.003);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-    src.connect(bp); bp.connect(g); g.connect(actx.destination);
-    src.start(t); src.stop(t + 0.09);
-}
+        function beatSec() {
+            const q = 60 / tempo;
+            if (tsKey === '6/8') return q * 1.5;
+            if (tsKey === '7/8') return q * 0.5;
+            return q;
+        }
+        function tickSec() { return beatSec() / subdivPerBeat; }
+        function unitSec() { return beatSec() / 4; } // seconds per 16th-note unit
 
-// ── Metronome ─────────────────────────────────────────────────────────────────
-function tsInfo() { return TS[tsKey]; }
+        function startMet() {
+            if (metOn) return;
+            metOn = true; curBeat = 0; curSubdiv = 0; globalTick = 0;
+            nextNoteTime = actx.currentTime + 0.05;
+            sched();
+        }
+        function stopMet() { metOn = false; clearTimeout(metTimer); }
+        function restartMet() { stopMet(); startMet(); }
 
-function beatSec() {
-    const q = 60 / tempo;
-    if (tsKey === '6/8') return q * 1.5;
-    if (tsKey === '7/8') return q * 0.5;
-    return q;
-}
-function tickSec() { return beatSec() / subdivPerBeat; }
-function unitSec() { return beatSec() / 4; } // seconds per 16th-note unit
-
-function startMet() {
-    if (metOn) return;
-    metOn = true; curBeat = 0; curSubdiv = 0; globalTick = 0;
-    nextNoteTime = actx.currentTime + 0.05;
-    sched();
-}
-function stopMet() { metOn = false; clearTimeout(metTimer); }
-function restartMet() { stopMet(); startMet(); }
-
-function sched() {
-    while (nextNoteTime < actx.currentTime + AHEAD) {
-        const ti = globalTick, t = nextNoteTime;
-        schedClick(ti, t);
-        const delay = (t - actx.currentTime) * 1000;
-        setTimeout(() => flashDot(ti), Math.max(0, delay));
-        advTick();
-    }
-    if (metOn) metTimer = setTimeout(sched, LOOK);
-}
-
-function advTick() {
-    const ts = tsInfo(), total = ts.beats * subdivPerBeat;
-    nextNoteTime += tickSec();
-    curSubdiv++;
-    if (curSubdiv >= subdivPerBeat) { curSubdiv = 0; curBeat = (curBeat + 1) % ts.beats; }
-    globalTick = (globalTick + 1) % total;
-}
-
-function schedClick(ti, t) {
-    if (metMuted) return;
-    const onBeat = ti % subdivPerBeat === 0;
-    if (ti === 0)         click(1050, 0.70, t);
-    else if (onBeat)      click(700,  0.40, t);
-    else                  click(480,  0.18, t);
-}
-
-// ── Beat dots ─────────────────────────────────────────────────────────────────
-function buildDots() {
-    const c = document.getElementById('beat-dots'); c.innerHTML = '';
-    const ts = tsInfo(), total = ts.beats * subdivPerBeat;
-    for (let i = 0; i < total; i++) {
-        const d = document.createElement('div');
-        d.className = 'beat-dot' + (i === 0 ? ' accent' : '');
-        d.dataset.ti = i;
-        c.appendChild(d);
-    }
-}
-
-function flashDot(ti) {
-    document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active'));
-    const d = document.querySelector(`.beat-dot[data-ti="${ti}"]`);
-    if (d) d.classList.add('active');
-}
-
-// ── Rhythm generation ─────────────────────────────────────────────────────────
-function legalAt(type, pos, ts) {
-    if (ts.compound && ['whole','half','dotHalf','quarter'].includes(type)) return false;
-    if (type === 'whole')      return pos === 0;
-    if (type === 'half')       return pos % 8 === 0;
-    if (type === 'dotHalf')    return pos === 0;
-    if (type === 'dotQuarter') return pos % ts.beatU === 0;
-    return true;
-}
-
-function genBar(totalU, ts) {
-    const bar = []; let pos = 0, rem = totalU, guard = 300;
-    while (rem > 0 && guard-- > 0) {
-        const cands = [];
-        for (const [tp, wt] of Object.entries(WEIGHTS)) {
-            if (!allowedTypes.has(tp) && tp !== 'triplet') continue;
-            if (tp === 'triplet') {
-                if (!allowedTypes.has('triplet')) continue;
-                if (ts.beatU !== 4 || rem < 4 || pos % ts.beatU !== 0) continue;
-                cands.push({ tp, u: 4, wt });
-                continue;
+        function sched() {
+            while (nextNoteTime < actx.currentTime + AHEAD) {
+                const ti = globalTick, t = nextNoteTime;
+                schedClick(ti, t);
+                const delay = (t - actx.currentTime) * 1000;
+                setTimeout(() => flashDot(ti), Math.max(0, delay));
+                advTick();
             }
-            const u = DUR[tp]; if (!u || u > rem) continue;
-            if (!legalAt(tp, pos, ts)) continue;
-            cands.push({ tp, u, wt });
+            if (metOn) metTimer = setTimeout(sched, LOOK);
         }
-        if (!cands.length) {
-            // Pick the largest rest that fits so we don't get stuck filling 1 unit at a time
-            const fu = [4,3,2,1].find(u => u <= rem) || 1;
-            const ft = fu===4?'quarter':fu===3?'dotEighth':fu===2?'eighth':'sixteenth';
-            bar.push({ kind:'rest', tp:ft, u:fu, dot:fu===3 }); pos+=fu; rem-=fu; continue;
+
+        function advTick() {
+            const ts = tsInfo(), total = ts.beats * subdivPerBeat;
+            nextNoteTime += tickSec();
+            curSubdiv++;
+            if (curSubdiv >= subdivPerBeat) { curSubdiv = 0; curBeat = (curBeat + 1) % ts.beats; }
+            globalTick = (globalTick + 1) % total;
         }
-        const tw = cands.reduce((s,c)=>s+c.wt,0);
-        let r = Math.random()*tw, chosen = cands[cands.length-1];
-        for (const c of cands) { r-=c.wt; if(r<=0){chosen=c;break;} }
-        const isRest = allowRests && Math.random() < 0.22;
-        if (chosen.tp === 'triplet') {
-            bar.push({ kind:'tripletGroup', u:4,
-                notes:[0,1,2].map(()=>({ kind:isRest?'rest':'note', tp:'tripletEighth', u:4/3, dot:false }))
-            });
-        } else {
-            bar.push({ kind:isRest?'rest':'note', tp:chosen.tp, u:chosen.u, dot:chosen.tp.startsWith('dot') });
+
+        function schedClick(ti, t) {
+            if (metMuted) return;
+            const onBeat = ti % subdivPerBeat === 0;
+            if (ti === 0) click(1050, 0.70, t);
+            else if (onBeat) click(700, 0.40, t);
+            else click(480, 0.18, t);
         }
-        pos += chosen.u; rem -= chosen.u;
-    }
-    // Safeguard: fill any remaining units with rests
-    while (rem > 0) {
-        const fu = [4,3,2,1].find(u => u <= rem) || 1;
-        const ft = fu===4?'quarter':fu===3?'dotEighth':fu===2?'eighth':'sixteenth';
-        bar.push({ kind:'rest', tp:ft, u:fu, dot:fu===3 }); rem -= fu;
-    }
-    return bar;
-}
 
-function genRhythm() {
-    const ts = { ...tsInfo(), compound: TS[tsKey].compound, beatU: TS[tsKey].beatU };
-    rhythm = Array.from({length:numBars}, ()=>genBar(ts.barU, ts));
-    hasRhythm = true; hasPlayed = false;
-    dictRevealed = false;
-    renderStaff();
-    setStatus(dictMode ? 'Press \u2192 to hear it' : 'Press \u2192 to play');
-    updateStaffVis();
-}
+        // ── Beat dots ─────────────────────────────────────────────────────────────────
+        function buildDots() {
+            const c = document.getElementById('beat-dots'); c.innerHTML = '';
+            const ts = tsInfo(), total = ts.beats * subdivPerBeat;
+            for (let i = 0; i < total; i++) {
+                const d = document.createElement('div');
+                d.className = 'beat-dot' + (i === 0 ? ' accent' : '');
+                d.dataset.ti = i;
+                c.appendChild(d);
+            }
+        }
 
-// ── Rhythm playback ───────────────────────────────────────────────────────────
-let playTimers = [];
-let isPlaying = false;
+        function flashDot(ti) {
+            document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active'));
+            const d = document.querySelector(`.beat-dot[data-ti="${ti}"]`);
+            if (d) d.classList.add('active');
+        }
 
-function cancelPlayback() {
-    playTimers.forEach(clearTimeout); playTimers = [];
-    highlightAll(false);
-    isPlaying = false;
-}
+        // ── Rhythm generation ─────────────────────────────────────────────────────────
+        function legalAt(type, pos, ts) {
+            if (ts.compound && ['whole', 'half', 'dotHalf', 'quarter'].includes(type)) return false;
+            if (type === 'whole') return pos === 0;
+            if (type === 'half') return pos % 8 === 0;
+            if (type === 'dotHalf') return pos === 0;
+            if (type === 'dotQuarter') return pos % ts.beatU === 0;
+            return true;
+        }
 
-function playRhythm() {
-    cancelPlayback();
-    isPlaying = true;
-
-    const ts = tsInfo();
-    const total = ts.beats * subdivPerBeat;
-    const ticksLeft = (total - globalTick) % total;
-    const startTime = nextNoteTime + ticksLeft * tickSec();
-    const uSec = unitSec();
-
-    // Walk rhythm and schedule woodblocks + highlights
-    let noteIdx = 0, uPos = 0;
-    for (const bar of rhythm) {
-        for (const ev of bar) {
-            if (ev.kind === 'tripletGroup') {
-                const bs = beatSec();
-                ev.notes.forEach((n, i) => {
-                    const hitT = startTime + uPos * uSec + i * bs / 3;
-                    const delMs = (hitT - actx.currentTime) * 1000;
-                    const ni = noteIdx + i;
-                    if (n.kind === 'note') {
-                        playTimers.push(setTimeout(() => woodblock(actx.currentTime + 0.01), Math.max(0, delMs)));
+        function genBar(totalU, ts) {
+            const bar = []; let pos = 0, rem = totalU, guard = 300;
+            while (rem > 0 && guard-- > 0) {
+                const cands = [];
+                for (const [tp, wt] of Object.entries(WEIGHTS)) {
+                    if (!allowedTypes.has(tp) && tp !== 'triplet') continue;
+                    if (tp === 'triplet') {
+                        if (!allowedTypes.has('triplet')) continue;
+                        if (ts.beatU !== 4 || rem < 4 || pos % ts.beatU !== 0) continue;
+                        cands.push({ tp, u: 4, wt });
+                        continue;
                     }
-                    playTimers.push(setTimeout(() => highlightNote(ni), Math.max(0, delMs)));
-                });
-                noteIdx += 3; uPos += 4;
-            } else {
-                const hitT = startTime + uPos * uSec;
-                const delMs = (hitT - actx.currentTime) * 1000;
-                const ni = noteIdx;
-                if (ev.kind === 'note') {
-                    playTimers.push(setTimeout(() => woodblock(actx.currentTime + 0.01), Math.max(0, delMs)));
+                    const u = DUR[tp]; if (!u || u > rem) continue;
+                    if (!legalAt(tp, pos, ts)) continue;
+                    cands.push({ tp, u, wt });
                 }
-                playTimers.push(setTimeout(() => highlightNote(ni), Math.max(0, delMs)));
-                noteIdx++; uPos += ev.u;
+                if (!cands.length) {
+                    // Pick the largest rest that fits so we don't get stuck filling 1 unit at a time
+                    const fu = [4, 3, 2, 1].find(u => u <= rem) || 1;
+                    const ft = fu === 4 ? 'quarter' : fu === 3 ? 'dotEighth' : fu === 2 ? 'eighth' : 'sixteenth';
+                    bar.push({ kind: 'rest', tp: ft, u: fu, dot: fu === 3 }); pos += fu; rem -= fu; continue;
+                }
+                const tw = cands.reduce((s, c) => s + c.wt, 0);
+                let r = Math.random() * tw, chosen = cands[cands.length - 1];
+                for (const c of cands) { r -= c.wt; if (r <= 0) { chosen = c; break; } }
+                const isRest = allowRests && Math.random() < 0.22;
+                if (chosen.tp === 'triplet') {
+                    bar.push({
+                        kind: 'tripletGroup', u: 4,
+                        notes: [0, 1, 2].map(() => ({ kind: isRest ? 'rest' : 'note', tp: 'tripletEighth', u: 4 / 3, dot: false }))
+                    });
+                } else {
+                    bar.push({ kind: isRest ? 'rest' : 'note', tp: chosen.tp, u: chosen.u, dot: chosen.tp.startsWith('dot') });
+                }
+                pos += chosen.u; rem -= chosen.u;
+            }
+            // Safeguard: fill any remaining units with rests
+            while (rem > 0) {
+                const fu = [4, 3, 2, 1].find(u => u <= rem) || 1;
+                const ft = fu === 4 ? 'quarter' : fu === 3 ? 'dotEighth' : fu === 2 ? 'eighth' : 'sixteenth';
+                bar.push({ kind: 'rest', tp: ft, u: fu, dot: fu === 3 }); rem -= fu;
+            }
+            return bar;
+        }
+
+        function genRhythm() {
+            cancelTapSession();
+            clearTapResults();
+            tapOffsets = [];
+            tapPlaybackTimers.forEach(clearTimeout); tapPlaybackTimers = [];
+            document.getElementById('btn-tap-playback').classList.remove('playing');
+            const ts = { ...tsInfo(), compound: TS[tsKey].compound, beatU: TS[tsKey].beatU };
+            rhythm = Array.from({ length: numBars }, () => genBar(ts.barU, ts));
+            hasRhythm = true; hasPlayed = false;
+            dictRevealed = false;
+            renderStaff();
+            setStatus(dictMode ? 'Press \u2192 to hear it' : 'Press \u2192 to play · SPACE to tap');
+            updateStaffVis();
+        }
+
+        // ── Rhythm playback ───────────────────────────────────────────────────────────
+        let playTimers = [];
+        let isPlaying = false;
+
+        function cancelPlayback() {
+            playTimers.forEach(clearTimeout); playTimers = [];
+            highlightAll(false);
+            isPlaying = false;
+            cancelTapSession();
+        }
+
+        function playRhythm() {
+            cancelPlayback();
+            isPlaying = true;
+
+            const ts = tsInfo();
+            const total = ts.beats * subdivPerBeat;
+            const ticksLeft = (total - globalTick) % total;
+            const startTime = nextNoteTime + ticksLeft * tickSec();
+            const uSec = unitSec();
+
+            // Walk rhythm and schedule sounds + highlights
+            let noteIdx = 0, uPos = 0;
+            for (const bar of rhythm) {
+                for (const ev of bar) {
+                    if (ev.kind === 'tripletGroup') {
+                        const bs = beatSec();
+                        ev.notes.forEach((n, i) => {
+                            const hitT = startTime + uPos * uSec + i * bs / 3;
+                            const delMs = (hitT - actx.currentTime) * 1000;
+                            const ni = noteIdx + i;
+                            if (n.kind === 'note') {
+                                const lenSec = bs / 3;
+                                playTimers.push(setTimeout(() => {
+                                    const t0 = actx.currentTime + 0.01;
+                                    if (dictMode) dictTone(t0, lenSec);
+                                    else woodblock(t0);
+                                }, Math.max(0, delMs)));
+                            }
+                            playTimers.push(setTimeout(() => highlightNote(ni), Math.max(0, delMs)));
+                        });
+                        noteIdx += 3; uPos += 4;
+                    } else {
+                        const hitT = startTime + uPos * uSec;
+                        const delMs = (hitT - actx.currentTime) * 1000;
+                        const ni = noteIdx;
+                        if (ev.kind === 'note') {
+                            const lenSec = ev.u * uSec;
+                            playTimers.push(setTimeout(() => {
+                                const t0 = actx.currentTime + 0.01;
+                                if (dictMode) dictTone(t0, lenSec);
+                                else woodblock(t0);
+                            }, Math.max(0, delMs)));
+                        }
+                        playTimers.push(setTimeout(() => highlightNote(ni), Math.max(0, delMs)));
+                        noteIdx++; uPos += ev.u;
+                    }
+                }
+            }
+
+            const totalDurSec = uPos * uSec;
+            const endMs = (startTime + totalDurSec - actx.currentTime) * 1000 + 400;
+            playTimers.push(setTimeout(() => {
+                isPlaying = false;
+                hasPlayed = true;
+                highlightAll(false);
+                setStatus(dictMode && !dictRevealed
+                    ? 'Write it down, then press \u2192 to reveal'
+                    : 'SPACE to tap \u00b7 Replay \u2190 \u00b7 Next \u2192');
+                updateStaffVis();
+            }, Math.max(600, endMs)));
+        }
+
+        function highlightAll(on) {
+            document.querySelectorAll('.ng').forEach(g => {
+                g.style.filter = on ? 'drop-shadow(0 0 5px #a0c4ff)' : '';
+            });
+        }
+        function highlightNote(idx) {
+            document.querySelectorAll('.ng').forEach(g => g.style.filter = '');
+            const el = document.getElementById('ng-' + idx);
+            if (el) el.style.filter = 'drop-shadow(0 0 5px #a0c4ff)';
+        }
+
+        // ── Tap Session ───────────────────────────────────────────────────────────────
+        function cancelTapSession() {
+            tapTimers.forEach(clearTimeout); tapTimers = [];
+            tapSessionActive = false;
+        }
+
+        function clearTapResults() {
+            document.querySelectorAll('.ng').forEach(g => { g.style.filter = ''; });
+            const sc = document.getElementById('tap-score');
+            if (sc) sc.textContent = '';
+            const staff = document.getElementById('rhythm-staff');
+            if (staff) staff.querySelectorAll('.tap-label').forEach(el => el.remove());
+        }
+
+        function startTapSession() {
+            if (!hasRhythm || dictMode || isPlaying) return;
+            if (!metOn) startMet();
+
+            cancelTapSession();
+            clearTapResults();
+            taps = [];
+            tapSessionActive = true;
+
+            const ts = tsInfo();
+            const total = ts.beats * subdivPerBeat;
+            const ticksLeft = (total - globalTick) % total;
+            tapStartTime = nextNoteTime + ticksLeft * tickSec();
+
+            const uSec = unitSec();
+            const barDurU = rhythm.reduce((sum, bar) => sum + bar.reduce((s, ev) => s + ev.u, 0), 0);
+            const barDurSec = barDurU * uSec;
+
+            const barStartMs = Math.max(0, (tapStartTime - actx.currentTime) * 1000);
+            if (barStartMs > 50) {
+                setStatus('Count in...');
+                tapTimers.push(setTimeout(() => {
+                    setStatus('\u266a TAP SPACE with each note! \u266a');
+                }, barStartMs));
+            } else {
+                setStatus('\u266a TAP SPACE with each note! \u266a');
+            }
+
+            const endMs = (tapStartTime + barDurSec - actx.currentTime) * 1000 + 500;
+            tapTimers.push(setTimeout(() => {
+                tapSessionActive = false;
+                scoreTaps();
+            }, Math.max(600, endMs)));
+
+            updateStaffVis();
+        }
+
+        function recordTap() {
+            if (!tapSessionActive) return;
+            taps.push(actx.currentTime);
+            const ind = document.getElementById('tap-indicator');
+            if (ind) {
+                ind.classList.add('hit');
+                setTimeout(() => ind.classList.remove('hit'), 80);
             }
         }
-    }
 
-    const totalDurSec = uPos * uSec;
-    const endMs = (startTime + totalDurSec - actx.currentTime) * 1000 + 400;
-    playTimers.push(setTimeout(() => {
-        isPlaying = false;
-        hasPlayed = true;
-        highlightAll(false);
-        setStatus(dictMode && !dictRevealed
-            ? 'Write it down, then press \u2192 to reveal'
-            : 'Replay \u2190 or Next \u2192');
-        updateStaffVis();
-    }, Math.max(600, endMs)));
-}
+        function scoreTaps() {
+            const uSec = unitSec();
+            const bs = beatSec();
+            const barDurU = rhythm.reduce((sum, bar) => sum + bar.reduce((s, ev) => s + ev.u, 0), 0);
+            const barDurSec = barDurU * uSec;
 
-function highlightAll(on) {
-    document.querySelectorAll('.ng').forEach(g => {
-        g.style.filter = on ? 'drop-shadow(0 0 5px #a0c4ff)' : '';
-    });
-}
-function highlightNote(idx) {
-    document.querySelectorAll('.ng').forEach(g => g.style.filter = '');
-    const el = document.getElementById('ng-'+idx);
-    if (el) el.style.filter = 'drop-shadow(0 0 5px #a0c4ff)';
-}
+            // Compute filtered offsets first (needed for latency correction + playback)
+            tapOffsets = taps
+                .map(t => t - tapStartTime)
+                .filter(o => o > -0.2 && o < barDurSec + 0.5);
 
-// ── SVG Notation ──────────────────────────────────────────────────────────────
-const SH = 110, SY = 62, STEM_H = 34, BEAM_T = 5, BEAM_G = 7;
-const CLEF_W = 38, TS_W = 24, MIN_NW = 28, PX_U = 8;
-
-function renderStaff() {
-    const wrap = document.getElementById('staff-wrap');
-    const containerW = wrap.clientWidth || 920;
-
-    const tsI = tsInfo();
-    // Layout each bar
-    const barLayouts = rhythm.map(bar => layoutBar(bar));
-    const barNoteW = barLayouts.map(lay => lay.reduce((s,n)=>s+n.w,0));
-    const firstExtra = CLEF_W + TS_W + 4;
-    const noteAreaRaw = barNoteW.reduce((s,w)=>s+w,0);
-    const fixedParts = firstExtra + (rhythm.length + 1) * 6 + 16;
-    // Scale to fill container, never overflow it, never stretch notes absurdly large
-    const idealScale = noteAreaRaw > 0 ? (containerW - fixedParts - 24) / noteAreaRaw : 1;
-    const scale = Math.min(2.5, idealScale);
-    const svgW = Math.min(containerW - 4, Math.round(noteAreaRaw * scale + fixedParts) + 16);
-
-    const svg = [];
-    svg.push(`<svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${SH}" class="ng-root">`);
-    svg.push(`<rect width="${svgW}" height="${SH}" fill="#f5f0e8"/>`);
-    // Single staff line
-    svg.push(`<line x1="8" y1="${SY}" x2="${svgW-8}" y2="${SY}" stroke="#aaa" stroke-width="1.5"/>`);
-
-    let x = 12;
-    // Opening bar line
-    svg.push(`<line x1="${x}" y1="${SY-14}" x2="${x}" y2="${SY+14}" stroke="#555" stroke-width="1.8"/>`);
-    x += 5;
-
-    // Percussion clef (two vertical bars)
-    svg.push(`<line x1="${x+2}" y1="${SY-14}" x2="${x+2}" y2="${SY+14}" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>`);
-    svg.push(`<line x1="${x+11}" y1="${SY-14}" x2="${x+11}" y2="${SY+14}" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>`);
-    x += CLEF_W;
-
-    // Time signature
-    svg.push(`<text x="${x+TS_W/2}" y="${SY-3}" text-anchor="middle" font-size="17" font-family="monospace" font-weight="bold" fill="#333">${tsI.num}</text>`);
-    svg.push(`<text x="${x+TS_W/2}" y="${SY+16}" text-anchor="middle" font-size="17" font-family="monospace" font-weight="bold" fill="#333">${tsI.den}</text>`);
-    x += TS_W + 4;
-
-    let globalNoteIdx = 0;
-    for (let b = 0; b < rhythm.length; b++) {
-        const lay = barLayouts[b];
-        const areaW = barNoteW[b] * scale;
-        // Assign scaled x positions
-        for (const n of lay) {
-            n.x = x + n.offsetX * scale + (n.w * scale) / 2;
-        }
-
-        const beamGroups = findBeamGroups(lay, tsI);
-        const tripGroups = findTripletGroups(lay);
-
-        // Draw note groups
-        for (let ni = 0; ni < lay.length; ni++) {
-            const note = lay[ni]; const idx = globalNoteIdx + ni;
-            svg.push(`<g id="ng-${idx}" class="ng">`);
-            drawNote(svg, note);
-            svg.push(`</g>`);
-        }
-        // Draw beams
-        for (const grp of beamGroups) drawBeams(svg, grp);
-        // Draw triplet beams + brackets
-        for (const grp of tripGroups) drawTriplet(svg, grp);
-
-        globalNoteIdx += lay.length;
-        x += areaW;
-
-        // Bar line
-        const isLast = b === rhythm.length - 1;
-        if (isLast) {
-            svg.push(`<line x1="${x+2}" y1="${SY-14}" x2="${x+2}" y2="${SY+14}" stroke="#333" stroke-width="1.8"/>`);
-            svg.push(`<line x1="${x+6}" y1="${SY-14}" x2="${x+6}" y2="${SY+14}" stroke="#333" stroke-width="4"/>`);
-        } else {
-            svg.push(`<line x1="${x+2}" y1="${SY-14}" x2="${x+2}" y2="${SY+14}" stroke="#666" stroke-width="1.8"/>`);
-        }
-        x += 8;
-    }
-
-    svg.push(`</svg>`);
-    document.getElementById('staff-wrap').innerHTML = svg.join('');
-}
-
-function layoutBar(bar) {
-    const result = []; let offsetX = 0;
-    for (const ev of bar) {
-        if (ev.kind === 'tripletGroup') {
-            const gw = Math.max(MIN_NW * 3, PX_U * 4 * 3);
-            const nw = gw / 3;
-            for (const n of ev.notes) {
-                result.push({ offsetX, w:nw, ev:n, tp:'tripletEighth', kind:n.kind, dot:false, isTri:true, triGrp:ev });
-                offsetX += nw;
+            // Build expected note attack times (raw, no correction yet)
+            const expected = [];
+            let noteIdx = 0, uPos = 0;
+            for (const bar of rhythm) {
+                for (const ev of bar) {
+                    if (ev.kind === 'tripletGroup') {
+                        ev.notes.forEach((n, i) => {
+                            if (n.kind === 'note') {
+                                expected.push({ time: uPos * uSec + i * bs / 3, noteIdx: noteIdx + i });
+                            }
+                        });
+                        noteIdx += 3; uPos += 4;
+                    } else {
+                        if (ev.kind === 'note') {
+                            expected.push({ time: uPos * uSec, noteIdx });
+                        }
+                        noteIdx++; uPos += ev.u;
+                    }
+                }
             }
-        } else {
-            const w = Math.max(MIN_NW, PX_U * ev.u);
-            result.push({ offsetX, w, ev, tp:ev.tp, kind:ev.kind, dot:ev.dot, isTri:false });
-            offsetX += w;
+
+            // Latency correction: reaction time only = first tap's offset minus where the
+            // first note actually is. This handles rhythms that start with rests correctly.
+            const latency = tapOffsets.length > 0 && expected.length > 0
+                ? tapOffsets[0] - expected[0].time
+                : 0;
+
+            // Shift all expected times by tapStartTime + latency
+            for (const e of expected) e.time += tapStartTime + latency;
+
+            if (expected.length === 0) {
+                setStatus('No notes to tap! Replay \u2190 or Next \u2192');
+                return;
+            }
+
+            // Match each tap to closest unmatched expected note within ±1.5 sixteenths
+            const tol = uSec * tapTolMult;
+            const matchedTapIdxs = new Set();
+            const hitNoteIdxs = new Set();
+            const timingMs = new Map(); // noteIdx → ms early/late
+
+            for (const exp of expected) {
+                let bestDist = Infinity, bestTi = -1;
+                for (let ti = 0; ti < taps.length; ti++) {
+                    if (matchedTapIdxs.has(ti)) continue;
+                    const dist = Math.abs(taps[ti] - exp.time);
+                    if (dist <= tol && dist < bestDist) { bestDist = dist; bestTi = ti; }
+                }
+                if (bestTi >= 0) {
+                    hitNoteIdxs.add(exp.noteIdx);
+                    matchedTapIdxs.add(bestTi);
+                    timingMs.set(exp.noteIdx, (taps[bestTi] - exp.time) * 1000);
+                }
+            }
+
+            // Color notes: green = hit, red = missed
+            for (const exp of expected) {
+                const el = document.getElementById('ng-' + exp.noteIdx);
+                if (el) {
+                    el.style.filter = hitNoteIdxs.has(exp.noteIdx)
+                        ? 'drop-shadow(0 0 7px #44ff88)'
+                        : 'drop-shadow(0 0 7px #ff5555)';
+                }
+            }
+
+            drawTimingLabels(timingMs);
+
+            const correct = hitNoteIdxs.size;
+            const total = expected.length;
+            const missed = total - correct;
+            const extra = taps.length - matchedTapIdxs.size;
+
+            let score = `${correct}/${total} correct`;
+            if (missed > 0) score += ` \u00b7 ${missed} missed`;
+            if (extra > 0) score += ` \u00b7 ${extra} extra`;
+
+            document.getElementById('tap-score').textContent = score;
+            setStatus('\u2191 My Taps \u00b7 \u2192 Play correct \u00b7 SPACE tap again');
+            updateStaffVis();
         }
-    }
-    return result;
-}
 
-function drawNote(svg, n) {
-    const x = n.x;
-    if (n.kind === 'rest') { drawRest(svg, x, n.tp); return; }
-    if (n.isTri) { drawNH(svg, x, 'quarter'); drawStem(svg, x); return; }
-    drawNH(svg, x, n.tp);
-    if (n.dot) drawDot(svg, x+12, SY-3);
-    if (n.tp !== 'whole') drawStem(svg, x);
-    if (!n.beamed) {
-        if (n.tp === 'eighth' || n.tp === 'dotEighth') drawFlag(svg, x, 1);
-        else if (n.tp === 'sixteenth')                  drawFlag(svg, x, 2);
-    }
-}
+        let tapPlaybackTimers = [];
 
-function drawNH(svg, x, tp) {
-    if (tp === 'whole') {
-        svg.push(`<ellipse cx="${x}" cy="${SY}" rx="8" ry="5.5" fill="none" stroke="#222" stroke-width="2"/>`);
-        return;
-    }
-    if (tp === 'half') {
-        const s=5.5;
-        svg.push(`<line x1="${x-s}" y1="${SY-s}" x2="${x+s}" y2="${SY+s}" stroke="#222" stroke-width="2" stroke-linecap="round"/>`);
-        svg.push(`<line x1="${x+s}" y1="${SY-s}" x2="${x-s}" y2="${SY+s}" stroke="#222" stroke-width="2" stroke-linecap="round"/>`);
-        return;
-    }
-    const s=5;
-    svg.push(`<line x1="${x-s}" y1="${SY-s}" x2="${x+s}" y2="${SY+s}" stroke="#222" stroke-width="3" stroke-linecap="round"/>`);
-    svg.push(`<line x1="${x+s}" y1="${SY-s}" x2="${x-s}" y2="${SY+s}" stroke="#222" stroke-width="3" stroke-linecap="round"/>`);
-}
+        function playTapPlayback() {
+            if (!tapOffsets.length) return;
+            if (!metOn) startMet();
 
-function drawStem(svg, x) {
-    svg.push(`<line x1="${x}" y1="${SY}" x2="${x}" y2="${SY-STEM_H}" stroke="#222" stroke-width="1.8"/>`);
-}
+            tapPlaybackTimers.forEach(clearTimeout); tapPlaybackTimers = [];
+            document.getElementById('btn-tap-playback').classList.remove('playing');
 
-function drawFlag(svg, x, n) {
-    const ty = SY - STEM_H;
-    for (let i=0;i<n;i++) {
-        const fy = ty + i*9;
-        svg.push(`<path d="M${x},${fy} C${x+15},${fy+8} ${x+15},${fy+18} ${x},${fy+22}" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>`);
-    }
-}
+            // Align to next bar downbeat
+            const ts = tsInfo();
+            const total = ts.beats * subdivPerBeat;
+            const ticksLeft = (total - globalTick) % total;
+            const barStart = nextNoteTime + ticksLeft * tickSec();
 
-function drawDot(svg, x, y) {
-    svg.push(`<circle cx="${x}" cy="${y}" r="2.5" fill="#222"/>`);
-}
+            const btn = document.getElementById('btn-tap-playback');
+            btn.classList.add('playing');
 
-function drawRest(svg, x, tp) {
-    const y = SY;
-    switch(tp) {
-        case 'whole':
-            // Filled rectangle hanging below a short ledger-like guide
-            svg.push(`<rect x="${x-9}" y="${y-14}" width="18" height="7" fill="#333" rx="1"/>`); break;
-        case 'dotHalf':
-            svg.push(`<rect x="${x-9}" y="${y-14}" width="18" height="7" fill="#333" rx="1"/>`);
-            drawDot(svg, x+14, y-10); break;
-        case 'half':
-            // Filled rectangle sitting on the staff line
-            svg.push(`<rect x="${x-9}" y="${y+1}" width="18" height="7" fill="#333" rx="1"/>`); break;
-        case 'quarter':
-            // Smooth S-curve approximating standard quarter rest
-            svg.push(`<path d="M${x+6},${y-18} C${x+11},${y-12} ${x-5},${y-7} ${x+6},${y-1} C${x+12},${y+3} ${x-4},${y+9} ${x+1},${y+12}" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>`);
-            break;
-        case 'dotQuarter':
-            svg.push(`<path d="M${x+6},${y-18} C${x+11},${y-12} ${x-5},${y-7} ${x+6},${y-1} C${x+12},${y+3} ${x-4},${y+9} ${x+1},${y+12}" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>`);
-            drawDot(svg, x+12, y+2); break;
-        case 'eighth': case 'tripletEighth':
-            svg.push(`<circle cx="${x+3}" cy="${y-15}" r="4" fill="#333"/>`);
-            svg.push(`<line x1="${x+3}" y1="${y-15}" x2="${x-4}" y2="${y+5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`);
-            break;
-        case 'dotEighth':
-            svg.push(`<circle cx="${x+3}" cy="${y-15}" r="4" fill="#333"/>`);
-            svg.push(`<line x1="${x+3}" y1="${y-15}" x2="${x-4}" y2="${y+5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`);
-            drawDot(svg, x+11, y-6); break;
-        case 'sixteenth':
-            svg.push(`<circle cx="${x+3}" cy="${y-19}" r="3.5" fill="#333"/>`);
-            svg.push(`<circle cx="${x+3}" cy="${y-9}"  r="3.5" fill="#333"/>`);
-            svg.push(`<line x1="${x+3}" y1="${y-19}" x2="${x-4}" y2="${y+5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`); break;
-        default:
-            svg.push(`<rect x="${x-7}" y="${y-9}" width="14" height="6" fill="#666" rx="1"/>`);
-    }
-}
-
-function findBeamGroups(lay, tsI) {
-    // Assign beat index per note
-    let uPos = 0;
-    for (const n of lay) {
-        if (n.isTri) { n.beatIdx = -1; uPos += 4/3; continue; }
-        n.beatIdx = Math.floor(uPos / tsI.beatU);
-        uPos += n.ev.u || 0;
-    }
-    const groups = []; let i = 0;
-    while (i < lay.length) {
-        const n = lay[i];
-        if (n.isTri || n.kind==='rest' || !beamable(n.tp)) { i++; continue; }
-        const bi = n.beatIdx; let j = i+1;
-        while (j < lay.length && !lay[j].isTri && lay[j].kind!=='rest' && beamable(lay[j].tp) && lay[j].beatIdx===bi) j++;
-        if (j-i >= 2) {
-            const grp = lay.slice(i,j);
-            grp.forEach(nn=>nn.beamed=true);
-            groups.push(grp);
+            // Anchor: subtract reaction time so first tap aligns to the first note's
+            // grid position (handles rhythms that start with rests correctly)
+            const firstNoteOff = getRhythmOffsets()[0] || 0;
+            const anchor = tapOffsets[0] - firstNoteOff;
+            const lastOffset = tapOffsets[tapOffsets.length - 1];
+            for (const offset of tapOffsets) {
+                const hitT = barStart + (offset - anchor);
+                const delMs = (hitT - actx.currentTime) * 1000;
+                tapPlaybackTimers.push(setTimeout(() => {
+                    woodblock(actx.currentTime + 0.01);
+                }, Math.max(0, delMs)));
+            }
+            // Remove green state after last tap finishes
+            const endDelMs = (barStart + (lastOffset - anchor) - actx.currentTime) * 1000 + 300;
+            tapPlaybackTimers.push(setTimeout(() => {
+                btn.classList.remove('playing');
+            }, Math.max(300, endDelMs)));
         }
-        i = j;
-    }
-    return groups;
-}
 
-function beamable(tp) { return ['eighth','sixteenth','dotEighth'].includes(tp); }
-
-function drawBeams(svg, grp) {
-    if (grp.length < 2) return;
-    const x1=grp[0].x, x2=grp[grp.length-1].x, y=SY-STEM_H;
-    svg.push(`<rect x="${x1-1}" y="${y-1}" width="${x2-x1+2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
-    // Secondary beam for 16ths
-    for (let i=0;i<grp.length-1;i++) {
-        if (grp[i].tp==='sixteenth'&&grp[i+1].tp==='sixteenth')
-            svg.push(`<rect x="${grp[i].x-1}" y="${y+BEAM_G}" width="${grp[i+1].x-grp[i].x+2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
-    }
-    // Stub for isolated sixteenth at start
-    if (grp[0].tp==='sixteenth' && grp.length>=2 && grp[1].tp!=='sixteenth')
-        svg.push(`<rect x="${grp[0].x-1}" y="${y+BEAM_G}" width="12" height="${BEAM_T}" fill="#222" rx="1"/>`);
-}
-
-function findTripletGroups(lay) {
-    const out = []; let i=0;
-    while (i<lay.length) {
-        if (lay[i].isTri) {
-            const ref = lay[i].triGrp, grp=[lay[i]];
-            while (i+1<lay.length && lay[i+1].isTri && lay[i+1].triGrp===ref) { i++; grp.push(lay[i]); }
-            out.push(grp);
+        // Build expected note attack times (relative to bar start) from current rhythm
+        function getRhythmOffsets() {
+            const uSec = unitSec();
+            const bs = beatSec();
+            const offsets = [];
+            let uPos = 0;
+            for (const bar of rhythm) {
+                for (const ev of bar) {
+                    if (ev.kind === 'tripletGroup') {
+                        ev.notes.forEach((n, i) => {
+                            if (n.kind === 'note') offsets.push(uPos * uSec + i * bs / 3);
+                        });
+                        uPos += 4;
+                    } else {
+                        if (ev.kind === 'note') offsets.push(uPos * uSec);
+                        uPos += ev.u;
+                    }
+                }
+            }
+            return offsets;
         }
-        i++;
-    }
-    return out;
-}
 
-function drawTriplet(svg, grp) {
-    const notes = grp.filter(n=>n.kind==='note');
-    if (notes.length>=2) {
-        const x1=notes[0].x, x2=notes[notes.length-1].x, y=SY-STEM_H;
-        svg.push(`<rect x="${x1-1}" y="${y-1}" width="${x2-x1+2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
-    }
-    const x1=grp[0].x-9, x2=grp[grp.length-1].x+9, by=SY-STEM_H-11;
-    svg.push(`<path d="M${x1},${by+6} L${x1},${by} L${x2},${by} L${x2},${by+6}" stroke="#888" stroke-width="1.2" fill="none"/>`);
-    svg.push(`<text x="${(x1+x2)/2}" y="${by-1}" text-anchor="middle" font-size="10" fill="#777" font-family="monospace">3</text>`);
-}
+        function drawTimingLabels(timingMs) {
+            const staffEl = document.getElementById('rhythm-staff');
+            if (!staffEl) return;
+            staffEl.querySelectorAll('.tap-label').forEach(el => el.remove());
+            const labelY = SY + 32;
+            for (const [noteIdx, ms] of timingMs) {
+                const g = document.getElementById('ng-' + noteIdx);
+                if (!g) continue;
+                const cx = parseFloat(g.dataset.cx) || 0;
+                const val = Math.round(ms);
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', cx);
+                text.setAttribute('y', labelY);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-family', 'monospace');
+                text.setAttribute('font-size', '9');
+                text.setAttribute('class', 'tap-label');
+                text.setAttribute('fill', val > 0 ? '#b84800' : '#0055aa');
+                text.textContent = (val > 0 ? '+' : '') + val + 'ms';
+                staffEl.appendChild(text);
+            }
+        }
 
-// ── Session ───────────────────────────────────────────────────────────────────
-function setStatus(t) { document.getElementById('status').textContent = t; }
+        // ── SVG Notation ──────────────────────────────────────────────────────────────
+        const SH = 110, SY = 62, STEM_H = 34, BEAM_T = 5, BEAM_G = 7;
+        const CLEF_W = 38, TS_W = 24, MIN_NW = 28, PX_U = 8;
 
-function updateStaffVis() {
-    const wrap = document.getElementById('staff-wrap');
-    const revBtn = document.getElementById('reveal-btn');
-    (dictMode && hasRhythm && !dictRevealed)
-        ? wrap.classList.add('obscured')
-        : wrap.classList.remove('obscured');
-    revBtn.classList.toggle('visible', dictMode && hasPlayed && !dictRevealed);
-}
+        function renderStaff() {
+            const wrap = document.getElementById('staff-wrap');
+            const containerW = wrap.clientWidth || 920;
 
-async function doAdvance() {
-    if (actx.state === 'suspended') await actx.resume();
-    if (!metOn) startMet();
-    if (isPlaying) {
-        // Interrupt: stop playback, generate new rhythm (user presses → again to play)
-        cancelPlayback();
-        genRhythm();
-        return;
-    }
-    if (dictMode && hasPlayed && !dictRevealed) {
-        dictRevealed = true;
-        updateStaffVis();
-        setStatus('Replay \u2190 or Next \u2192');
-    } else if (!hasRhythm || hasPlayed) {
-        genRhythm();
-    } else {
-        setStatus('Playing...');
-        playRhythm();
-    }
-}
+            const tsI = tsInfo();
+            // Layout each bar
+            const barLayouts = rhythm.map(bar => layoutBar(bar));
+            const barNoteW = barLayouts.map(lay => lay.reduce((s, n) => s + n.w, 0));
+            const firstExtra = CLEF_W + TS_W + 4;
+            const noteAreaRaw = barNoteW.reduce((s, w) => s + w, 0);
+            const fixedParts = firstExtra + (rhythm.length + 1) * 6 + 16;
+            // Scale to fill container, never overflow it, never stretch notes absurdly large
+            const idealScale = noteAreaRaw > 0 ? (containerW - fixedParts - 24) / noteAreaRaw : 1;
+            const scale = Math.min(2.5, idealScale);
+            const svgW = Math.min(containerW - 4, Math.round(noteAreaRaw * scale + fixedParts) + 16);
 
-async function doReplay() {
-    if (!hasRhythm) return;
-    if (actx.state === 'suspended') await actx.resume();
-    if (!metOn) startMet();
-    // cancelPlayback() is called inside playRhythm(); replay always aligns to beat 1
-    setStatus('Replaying...');
-    playRhythm();
-}
+            const svg = [];
+            svg.push(`<svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${SH}" class="ng-root">`);
+            svg.push(`<rect width="${svgW}" height="${SH}" fill="#f5f0e8"/>`);
+            // Single staff line
+            svg.push(`<line x1="8" y1="${SY}" x2="${svgW - 8}" y2="${SY}" stroke="#aaa" stroke-width="1.5"/>`);
 
-// ── Keys & Buttons ────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-    if (actx.state === 'suspended') actx.resume();
-    if (document.getElementById('settings-panel').style.display === 'block') {
-        if (e.key === 'Escape') closeSettings(); return;
-    }
-    if (e.key === 'ArrowRight') { e.preventDefault(); doAdvance(); }
-    if (e.key === 'ArrowLeft')  { e.preventDefault(); doReplay(); }
-});
+            let x = 12;
+            // Opening bar line
+            svg.push(`<line x1="${x}" y1="${SY - 14}" x2="${x}" y2="${SY + 14}" stroke="#555" stroke-width="1.8"/>`);
+            x += 5;
 
-document.getElementById('btn-advance').addEventListener('click', e=>{ e.currentTarget.blur(); doAdvance(); });
-document.getElementById('btn-replay').addEventListener('click',  e=>{ e.currentTarget.blur(); doReplay(); });
+            // Percussion clef (two vertical bars)
+            svg.push(`<line x1="${x + 2}" y1="${SY - 14}" x2="${x + 2}" y2="${SY + 14}" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>`);
+            svg.push(`<line x1="${x + 11}" y1="${SY - 14}" x2="${x + 11}" y2="${SY + 14}" stroke="#333" stroke-width="3.5" stroke-linecap="round"/>`);
+            x += CLEF_W;
 
-document.getElementById('mode-btn').addEventListener('click', e => {
-    dictMode = !dictMode;
-    const btn = e.currentTarget;
-    btn.textContent = dictMode ? 'Dictation' : 'Reading';
-    btn.classList.toggle('on', !dictMode);
-    cancelPlayback();
-    hasRhythm = false; hasPlayed = false; dictRevealed = false;
-    document.getElementById('rhythm-staff').innerHTML = '';
-    setStatus('Press \u2192 to generate a rhythm');
-    updateStaffVis();
-});
+            // Time signature
+            svg.push(`<text x="${x + TS_W / 2}" y="${SY - 3}" text-anchor="middle" font-size="17" font-family="monospace" font-weight="bold" fill="#333">${tsI.num}</text>`);
+            svg.push(`<text x="${x + TS_W / 2}" y="${SY + 16}" text-anchor="middle" font-size="17" font-family="monospace" font-weight="bold" fill="#333">${tsI.den}</text>`);
+            x += TS_W + 4;
 
-document.getElementById('reveal-btn').addEventListener('click', () => {
-    if (!dictMode || !hasPlayed) return;
-    dictRevealed = true;
-    updateStaffVis();
-    setStatus('Replay \u2190 or Next \u2192');
-});
+            let globalNoteIdx = 0;
+            for (let b = 0; b < rhythm.length; b++) {
+                const lay = barLayouts[b];
+                const areaW = barNoteW[b] * scale;
+                // Assign scaled x positions
+                for (const n of lay) {
+                    n.x = x + n.offsetX * scale + (n.w * scale) / 2;
+                }
 
-// ── Settings ──────────────────────────────────────────────────────────────────
-function openSettings()  { document.getElementById('settings-panel').style.display='block'; document.getElementById('overlay').style.display='block'; }
-function closeSettings() { document.getElementById('settings-panel').style.display='none';  document.getElementById('overlay').style.display='none';  }
-document.getElementById('settings-btn').addEventListener('click', openSettings);
-document.getElementById('close-btn').addEventListener('click', closeSettings);
-document.getElementById('overlay').addEventListener('click', closeSettings);
+                const beamGroups = findBeamGroups(lay, tsI);
+                const tripGroups = findTripletGroups(lay);
 
-document.getElementById('note-type-btns').addEventListener('click', e=>{
-    const btn = e.target.closest('[data-note]'); if (!btn) return;
-    const tp = btn.dataset.note;
-    if (allowedTypes.has(tp)) { if (allowedTypes.size<=1) return; allowedTypes.delete(tp); btn.classList.remove('on'); }
-    else { allowedTypes.add(tp); btn.classList.add('on'); }
-});
+                // Draw note groups
+                for (let ni = 0; ni < lay.length; ni++) {
+                    const note = lay[ni]; const idx = globalNoteIdx + ni;
+                    svg.push(`<g id="ng-${idx}" class="ng" data-cx="${note.x.toFixed(1)}">`);
+                    drawNote(svg, note);
+                    svg.push(`</g>`);
+                }
+                // Draw beams
+                for (const grp of beamGroups) drawBeams(svg, grp);
+                // Draw triplet beams + brackets
+                for (const grp of tripGroups) drawTriplet(svg, grp);
 
-document.getElementById('rest-btns').addEventListener('click', e=>{
-    const btn = e.target.closest('[data-rest]'); if (!btn) return;
-    allowRests = btn.dataset.rest==='yes';
-    document.querySelectorAll('#rest-btns .pill').forEach(b=>b.classList.toggle('on',b===btn));
-});
+                globalNoteIdx += lay.length;
+                x += areaW;
 
-document.getElementById('bars-btns').addEventListener('click', e=>{
-    const btn = e.target.closest('[data-bars]'); if (!btn) return;
-    numBars = parseInt(btn.dataset.bars);
-    document.querySelectorAll('#bars-btns .pill').forEach(b=>b.classList.toggle('on',b===btn));
-});
+                // Bar line
+                const isLast = b === rhythm.length - 1;
+                if (isLast) {
+                    svg.push(`<line x1="${x + 2}" y1="${SY - 14}" x2="${x + 2}" y2="${SY + 14}" stroke="#333" stroke-width="1.8"/>`);
+                    svg.push(`<line x1="${x + 6}" y1="${SY - 14}" x2="${x + 6}" y2="${SY + 14}" stroke="#333" stroke-width="4"/>`);
+                } else {
+                    svg.push(`<line x1="${x + 2}" y1="${SY - 14}" x2="${x + 2}" y2="${SY + 14}" stroke="#666" stroke-width="1.8"/>`);
+                }
+                x += 8;
+            }
 
-document.getElementById('timesig-btns').addEventListener('click', e=>{
-    const btn = e.target.closest('[data-ts]'); if (!btn) return;
-    tsKey = btn.dataset.ts;
-    document.querySelectorAll('#timesig-btns .pill').forEach(b=>b.classList.toggle('on',b===btn));
-    buildDots();
-    cancelPlayback();
-    if (metOn) restartMet();
-    hasRhythm = false; hasPlayed = false;
-    document.getElementById('staff-wrap').innerHTML = '<svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="900" height="110"></svg>';
-    setStatus('Press \u2192 to generate a rhythm');
-});
+            svg.push(`</svg>`);
+            document.getElementById('staff-wrap').innerHTML = svg.join('');
+        }
 
-document.getElementById('subdiv-btns').addEventListener('click', e=>{
-    const btn = e.target.closest('[data-subdiv]'); if (!btn) return;
-    subdivPerBeat = parseInt(btn.dataset.subdiv);
-    document.querySelectorAll('#subdiv-btns .pill').forEach(b=>b.classList.toggle('on',b===btn));
-    buildDots();
-    if (metOn) restartMet();
-});
+        function layoutBar(bar) {
+            const result = []; let offsetX = 0;
+            for (const ev of bar) {
+                if (ev.kind === 'tripletGroup') {
+                    const gw = Math.max(MIN_NW * 3, PX_U * 4 * 3);
+                    const nw = gw / 3;
+                    for (const n of ev.notes) {
+                        result.push({ offsetX, w: nw, ev: n, tp: 'tripletEighth', kind: n.kind, dot: false, isTri: true, triGrp: ev });
+                        offsetX += nw;
+                    }
+                } else {
+                    const w = Math.max(MIN_NW, PX_U * ev.u);
+                    result.push({ offsetX, w, ev, tp: ev.tp, kind: ev.kind, dot: ev.dot, isTri: false });
+                    offsetX += w;
+                }
+            }
+            return result;
+        }
 
-document.getElementById('met-mute-btn').addEventListener('click', e=>{
-    metMuted = !metMuted;
-    e.currentTarget.classList.toggle('on', !metMuted);
-});
+        function drawNote(svg, n) {
+            const x = n.x;
+            if (n.kind === 'rest') { drawRest(svg, x, n.tp); return; }
+            if (n.isTri) { drawNH(svg, x, 'quarter'); drawStem(svg, x); return; }
+            drawNH(svg, x, n.tp);
+            if (n.dot) drawDot(svg, x + 12, SY - 3);
+            if (n.tp !== 'whole') drawStem(svg, x);
+            if (!n.beamed) {
+                if (n.tp === 'eighth' || n.tp === 'dotEighth') drawFlag(svg, x, 1);
+                else if (n.tp === 'sixteenth') drawFlag(svg, x, 2);
+            }
+        }
 
-// ── Tempo knob ────────────────────────────────────────────────────────────────
-function updateKnob() {
-    const t = Math.round(tempo);
-    document.getElementById('tempo-bpm').textContent = t;
-    const ratio = (t-TEMPO_MIN)/(TEMPO_MAX-TEMPO_MIN);
-    document.getElementById('knob-fill').setAttribute('stroke-dasharray', `${(ratio*KNOB_ARC).toFixed(2)} ${KNOB_CIRC}`);
-    document.getElementById('knob-indicator').setAttribute('transform', `rotate(${(-135+ratio*270).toFixed(1)})`);
-}
+        function drawNH(svg, x, tp) {
+            if (tp === 'whole') {
+                svg.push(`<ellipse cx="${x}" cy="${SY}" rx="8" ry="5.5" fill="none" stroke="#222" stroke-width="2"/>`);
+                return;
+            }
+            if (tp === 'half') {
+                const s = 5.5;
+                svg.push(`<line x1="${x - s}" y1="${SY - s}" x2="${x + s}" y2="${SY + s}" stroke="#222" stroke-width="2" stroke-linecap="round"/>`);
+                svg.push(`<line x1="${x + s}" y1="${SY - s}" x2="${x - s}" y2="${SY + s}" stroke="#222" stroke-width="2" stroke-linecap="round"/>`);
+                return;
+            }
+            const s = 5;
+            svg.push(`<line x1="${x - s}" y1="${SY - s}" x2="${x + s}" y2="${SY + s}" stroke="#222" stroke-width="3" stroke-linecap="round"/>`);
+            svg.push(`<line x1="${x + s}" y1="${SY - s}" x2="${x - s}" y2="${SY + s}" stroke="#222" stroke-width="3" stroke-linecap="round"/>`);
+        }
 
-const knobEl = document.getElementById('tempo-knob');
-let knobDrag=false, knobLast=0;
+        function drawStem(svg, x) {
+            svg.push(`<line x1="${x}" y1="${SY}" x2="${x}" y2="${SY - STEM_H}" stroke="#222" stroke-width="1.8"/>`);
+        }
 
-function knobAngle(e) {
-    const r=knobEl.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-    const px=e.touches?e.touches[0].clientX:e.clientX, py=e.touches?e.touches[0].clientY:e.clientY;
-    return Math.atan2(py-cy,px-cx)*180/Math.PI;
-}
-function applyKnob(e) {
-    const a=knobAngle(e); let d=a-knobLast;
-    if(d>180)d-=360; if(d<-180)d+=360;
-    knobLast=a;
-    tempo=Math.max(TEMPO_MIN,Math.min(TEMPO_MAX,tempo+d*(TEMPO_MAX-TEMPO_MIN)/270));
-    updateKnob();
-    if (isPlaying) cancelPlayback(); // woodblocks were timed at old tempo; kill them
-}
+        function drawFlag(svg, x, n) {
+            const ty = SY - STEM_H;
+            for (let i = 0; i < n; i++) {
+                const fy = ty + i * 9;
+                svg.push(`<path d="M${x},${fy} C${x + 15},${fy + 8} ${x + 15},${fy + 18} ${x},${fy + 22}" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>`);
+            }
+        }
 
-knobEl.addEventListener('mousedown', e=>{knobDrag=true;knobLast=knobAngle(e);knobEl.style.cursor='grabbing';e.preventDefault();});
-knobEl.addEventListener('touchstart',e=>{knobDrag=true;knobLast=knobAngle(e);e.preventDefault();},{passive:false});
-document.addEventListener('mousemove',e=>{if(knobDrag)applyKnob(e);});
-document.addEventListener('touchmove',e=>{if(knobDrag)applyKnob(e);},{passive:false});
-document.addEventListener('mouseup',  ()=>{knobDrag=false;knobEl.style.cursor='grab';});
-document.addEventListener('touchend', ()=>{knobDrag=false;});
-knobEl.addEventListener('wheel',e=>{
-    e.preventDefault();
-    tempo=Math.max(TEMPO_MIN,Math.min(TEMPO_MAX,tempo-Math.sign(e.deltaY)*2));
-    updateKnob();
-    if (isPlaying) cancelPlayback();
-},{passive:false});
+        function drawDot(svg, x, y) {
+            svg.push(`<circle cx="${x}" cy="${y}" r="2.5" fill="#222"/>`);
+        }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-updateKnob();
-buildDots();
+        function drawRest(svg, x, tp) {
+            const y = SY;
+            switch (tp) {
+                case 'whole':
+                    // Filled rectangle hanging below a short ledger-like guide
+                    svg.push(`<rect x="${x - 9}" y="${y - 14}" width="18" height="7" fill="#333" rx="1"/>`); break;
+                case 'dotHalf':
+                    svg.push(`<rect x="${x - 9}" y="${y - 14}" width="18" height="7" fill="#333" rx="1"/>`);
+                    drawDot(svg, x + 14, y - 10); break;
+                case 'half':
+                    // Filled rectangle sitting on the staff line
+                    svg.push(`<rect x="${x - 9}" y="${y + 1}" width="18" height="7" fill="#333" rx="1"/>`); break;
+                case 'quarter':
+                    // Smooth S-curve approximating standard quarter rest
+                    svg.push(`<path d="M${x + 6},${y - 18} C${x + 11},${y - 12} ${x - 5},${y - 7} ${x + 6},${y - 1} C${x + 12},${y + 3} ${x - 4},${y + 9} ${x + 1},${y + 12}" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>`);
+                    break;
+                case 'dotQuarter':
+                    svg.push(`<path d="M${x + 6},${y - 18} C${x + 11},${y - 12} ${x - 5},${y - 7} ${x + 6},${y - 1} C${x + 12},${y + 3} ${x - 4},${y + 9} ${x + 1},${y + 12}" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>`);
+                    drawDot(svg, x + 12, y + 2); break;
+                case 'eighth': case 'tripletEighth':
+                    svg.push(`<circle cx="${x + 3}" cy="${y - 15}" r="4" fill="#333"/>`);
+                    svg.push(`<line x1="${x + 3}" y1="${y - 15}" x2="${x - 4}" y2="${y + 5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`);
+                    break;
+                case 'dotEighth':
+                    svg.push(`<circle cx="${x + 3}" cy="${y - 15}" r="4" fill="#333"/>`);
+                    svg.push(`<line x1="${x + 3}" y1="${y - 15}" x2="${x - 4}" y2="${y + 5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`);
+                    drawDot(svg, x + 11, y - 6); break;
+                case 'sixteenth':
+                    svg.push(`<circle cx="${x + 3}" cy="${y - 19}" r="3.5" fill="#333"/>`);
+                    svg.push(`<circle cx="${x + 3}" cy="${y - 9}"  r="3.5" fill="#333"/>`);
+                    svg.push(`<line x1="${x + 3}" y1="${y - 19}" x2="${x - 4}" y2="${y + 5}" stroke="#333" stroke-width="2.2" stroke-linecap="round"/>`); break;
+                default:
+                    svg.push(`<rect x="${x - 7}" y="${y - 9}" width="14" height="6" fill="#666" rx="1"/>`);
+            }
+        }
 
-// ── MIDI Piano ──────────────────────────────────────────────────────────────
-const midiGain = actx.createGain();
-midiGain.gain.value = 0.6;
-midiGain.connect(actx.destination);
-const midiNotes = {};
+        function findBeamGroups(lay, tsI) {
+            // Assign beat index per note
+            let uPos = 0;
+            for (const n of lay) {
+                if (n.isTri) { n.beatIdx = -1; uPos += 4 / 3; continue; }
+                n.beatIdx = Math.floor(uPos / tsI.beatU);
+                uPos += n.ev.u || 0;
+            }
+            const groups = []; let i = 0;
+            while (i < lay.length) {
+                const n = lay[i];
+                if (n.isTri || n.kind === 'rest' || !beamable(n.tp)) { i++; continue; }
+                const bi = n.beatIdx; let j = i + 1;
+                while (j < lay.length && !lay[j].isTri && lay[j].kind !== 'rest' && beamable(lay[j].tp) && lay[j].beatIdx === bi) j++;
+                if (j - i >= 2) {
+                    const grp = lay.slice(i, j);
+                    grp.forEach(nn => nn.beamed = true);
+                    groups.push(grp);
+                }
+                i = j;
+            }
+            return groups;
+        }
 
-function midiNoteOn(note, vel) {
-    if (actx.state === 'suspended') actx.resume();
-    if (midiNotes[note]) return;
-    const freq = 440 * Math.pow(2, (note - 69) / 12);
-    const osc = actx.createOscillator();
-    const g = actx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-    osc.connect(g); g.connect(midiGain);
-    const now = actx.currentTime;
-    const peak = (vel / 127) * 0.7;
-    g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(peak, now + 0.008);
-    osc.start(now);
-    midiNotes[note] = { osc, g };
-}
+        function beamable(tp) { return ['eighth', 'sixteenth', 'dotEighth'].includes(tp); }
 
-function midiNoteOff(note) {
-    const n = midiNotes[note];
-    if (!n) return;
-    const now = actx.currentTime;
-    n.g.gain.cancelScheduledValues(now);
-    n.g.gain.setValueAtTime(n.g.gain.value, now);
-    n.g.gain.linearRampToValueAtTime(0, now + 0.4);
-    n.osc.stop(now + 0.41);
-    delete midiNotes[note];
-}
+        function drawBeams(svg, grp) {
+            if (grp.length < 2) return;
+            const x1 = grp[0].x, x2 = grp[grp.length - 1].x, y = SY - STEM_H;
+            svg.push(`<rect x="${x1 - 1}" y="${y - 1}" width="${x2 - x1 + 2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
+            // Secondary beam for 16ths
+            for (let i = 0; i < grp.length - 1; i++) {
+                if (grp[i].tp === 'sixteenth' && grp[i + 1].tp === 'sixteenth')
+                    svg.push(`<rect x="${grp[i].x - 1}" y="${y + BEAM_G}" width="${grp[i + 1].x - grp[i].x + 2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
+            }
+            // Stub for isolated sixteenth at start
+            if (grp[0].tp === 'sixteenth' && grp.length >= 2 && grp[1].tp !== 'sixteenth')
+                svg.push(`<rect x="${grp[0].x - 1}" y="${y + BEAM_G}" width="12" height="${BEAM_T}" fill="#222" rx="1"/>`);
+        }
 
-function onMidiMsg(e) {
-    const [cmd, note, vel] = e.data;
-    if (cmd === 144 && vel > 0) midiNoteOn(note, vel);
-    else if (cmd === 128 || (cmd === 144 && vel === 0)) midiNoteOff(note);
-}
+        function findTripletGroups(lay) {
+            const out = []; let i = 0;
+            while (i < lay.length) {
+                if (lay[i].isTri) {
+                    const ref = lay[i].triGrp, grp = [lay[i]];
+                    while (i + 1 < lay.length && lay[i + 1].isTri && lay[i + 1].triGrp === ref) { i++; grp.push(lay[i]); }
+                    out.push(grp);
+                }
+                i++;
+            }
+            return out;
+        }
 
-function connectMidi(access) {
-    const el = document.getElementById('midi-status');
-    const ins = [...access.inputs.values()];
-    ins.forEach(i => { i.onmidimessage = onMidiMsg; });
-    el.textContent = ins.length ? 'MIDI: connected' : 'MIDI: no device';
-    el.className = ins.length ? 'on' : '';
-    access.onstatechange = () => {
-        const ins2 = [...access.inputs.values()];
-        ins2.forEach(i => { i.onmidimessage = onMidiMsg; });
-        el.textContent = ins2.length ? 'MIDI: connected' : 'MIDI: no device';
-        el.className = ins2.length ? 'on' : '';
-    };
-}
+        function drawTriplet(svg, grp) {
+            const notes = grp.filter(n => n.kind === 'note');
+            if (notes.length >= 2) {
+                const x1 = notes[0].x, x2 = notes[notes.length - 1].x, y = SY - STEM_H;
+                svg.push(`<rect x="${x1 - 1}" y="${y - 1}" width="${x2 - x1 + 2}" height="${BEAM_T}" fill="#222" rx="1"/>`);
+            }
+            const x1 = grp[0].x - 9, x2 = grp[grp.length - 1].x + 9, by = SY - STEM_H - 11;
+            svg.push(`<path d="M${x1},${by + 6} L${x1},${by} L${x2},${by} L${x2},${by + 6}" stroke="#888" stroke-width="1.2" fill="none"/>`);
+            svg.push(`<text x="${(x1 + x2) / 2}" y="${by - 1}" text-anchor="middle" font-size="10" fill="#777" font-family="monospace">3</text>`);
+        }
 
-if (navigator.requestMIDIAccess) {
-    document.getElementById('midi-status').textContent = 'MIDI: searching\u2026';
-    navigator.requestMIDIAccess().then(connectMidi, () => {
-        const el = document.getElementById('midi-status');
-        el.textContent = 'MIDI: denied'; el.className = 'err';
-    });
-}
-</script>
+        // ── Session ───────────────────────────────────────────────────────────────────
+        function setStatus(t) { document.getElementById('status').textContent = t; }
+
+        function updateStaffVis() {
+            const wrap = document.getElementById('staff-wrap');
+            const revBtn = document.getElementById('reveal-btn');
+            const tapBtn = document.getElementById('btn-tap');
+            (dictMode && hasRhythm && !dictRevealed)
+                ? wrap.classList.add('obscured')
+                : wrap.classList.remove('obscured');
+            revBtn.classList.toggle('visible', dictMode && hasPlayed && !dictRevealed);
+            tapBtn.classList.toggle('visible', !dictMode && hasRhythm && !isPlaying);
+            document.getElementById('btn-tap-playback').classList.toggle('visible', !dictMode && tapOffsets.length > 0);
+        }
+
+        async function doAdvance() {
+            if (actx.state === 'suspended') await actx.resume();
+            if (!metOn) startMet();
+            if (isPlaying) {
+                // Interrupt: stop playback, generate new rhythm (user presses → again to play)
+                cancelPlayback();
+                genRhythm();
+                return;
+            }
+            if (dictMode && hasPlayed && !dictRevealed) {
+                dictRevealed = true;
+                updateStaffVis();
+                setStatus('Replay \u2190 or Next \u2192');
+            } else if (!hasRhythm || hasPlayed) {
+                genRhythm();
+            } else {
+                setStatus('Playing...');
+                playRhythm();
+            }
+        }
+
+        async function doReplay() {
+            if (!hasRhythm) return;
+            if (actx.state === 'suspended') await actx.resume();
+            if (!metOn) startMet();
+            // cancelPlayback() is called inside playRhythm(); replay always aligns to beat 1
+            setStatus('Replaying...');
+            playRhythm();
+        }
+
+        // ── Keys & Buttons ────────────────────────────────────────────────────────────
+        document.addEventListener('keydown', e => {
+            if (actx.state === 'suspended') actx.resume();
+            if (document.getElementById('settings-panel').style.display === 'block') {
+                if (e.key === 'Escape') closeSettings(); return;
+            }
+            if (e.key === 'ArrowRight') { e.preventDefault(); doAdvance(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); doReplay(); }
+            if (e.key === 'ArrowUp') { e.preventDefault(); if (!dictMode && tapOffsets.length > 0) playTapPlayback(); }
+            if (e.key === ' ') {
+                e.preventDefault();
+                if (tapSessionActive) {
+                    recordTap();
+                } else if (!dictMode && hasRhythm && !isPlaying) {
+                    startTapSession();
+                }
+            }
+        });
+
+        document.getElementById('btn-advance').addEventListener('click', e => { e.currentTarget.blur(); doAdvance(); });
+        document.getElementById('btn-replay').addEventListener('click', e => { e.currentTarget.blur(); doReplay(); });
+        document.getElementById('btn-tap').addEventListener('click', e => {
+            e.currentTarget.blur();
+            if (tapSessionActive) recordTap();
+            else startTapSession();
+        });
+        document.getElementById('btn-tap-playback').addEventListener('click', e => {
+            e.currentTarget.blur();
+            playTapPlayback();
+        });
+        document.getElementById('mode-btn').addEventListener('click', e => {
+            dictMode = !dictMode;
+            const btn = e.currentTarget;
+            btn.textContent = dictMode ? 'Dictation' : 'Reading';
+            btn.classList.toggle('on', !dictMode);
+            cancelPlayback();
+            clearTapResults();
+            tapOffsets = [];
+            tapPlaybackTimers.forEach(clearTimeout); tapPlaybackTimers = [];
+            document.getElementById('btn-tap-playback').classList.remove('playing');
+            hasRhythm = false; hasPlayed = false; dictRevealed = false;
+            document.getElementById('rhythm-staff').innerHTML = '';
+            setStatus('Press \u2192 to generate a rhythm');
+            updateStaffVis();
+        });
+
+        document.getElementById('reveal-btn').addEventListener('click', () => {
+            if (!dictMode || !hasPlayed) return;
+            dictRevealed = true;
+            updateStaffVis();
+            setStatus('Replay \u2190 or Next \u2192');
+        });
+
+        // ── Settings ──────────────────────────────────────────────────────────────────
+        function openSettings() { document.getElementById('settings-panel').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+        function closeSettings() { document.getElementById('settings-panel').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+        document.getElementById('settings-btn').addEventListener('click', openSettings);
+        document.getElementById('close-btn').addEventListener('click', closeSettings);
+        document.getElementById('tap-tol-slider').addEventListener('input', e => {
+            tapTolMult = parseFloat(e.target.value);
+            document.getElementById('tap-tol-val').textContent = `\u00b1${tapTolMult} sixteenth${tapTolMult === 1 ? '' : 's'}`;
+        });
+        document.getElementById('overlay').addEventListener('click', closeSettings);
+
+        document.getElementById('note-type-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-note]'); if (!btn) return;
+            const tp = btn.dataset.note;
+            if (allowedTypes.has(tp)) { if (allowedTypes.size <= 1) return; allowedTypes.delete(tp); btn.classList.remove('on'); }
+            else { allowedTypes.add(tp); btn.classList.add('on'); }
+        });
+
+        document.getElementById('rest-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-rest]'); if (!btn) return;
+            allowRests = btn.dataset.rest === 'yes';
+            document.querySelectorAll('#rest-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+        });
+
+        document.getElementById('bars-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-bars]'); if (!btn) return;
+            numBars = parseInt(btn.dataset.bars);
+            document.querySelectorAll('#bars-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+        });
+
+        document.getElementById('timesig-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-ts]'); if (!btn) return;
+            tsKey = btn.dataset.ts;
+            document.querySelectorAll('#timesig-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+            buildDots();
+            cancelPlayback();
+            if (metOn) restartMet();
+            hasRhythm = false; hasPlayed = false;
+            document.getElementById('staff-wrap').innerHTML = '<svg id="rhythm-staff" xmlns="http://www.w3.org/2000/svg" width="900" height="110"></svg>';
+            setStatus('Press \u2192 to generate a rhythm');
+        });
+
+        document.getElementById('subdiv-btns').addEventListener('click', e => {
+            const btn = e.target.closest('[data-subdiv]'); if (!btn) return;
+            subdivPerBeat = parseInt(btn.dataset.subdiv);
+            document.querySelectorAll('#subdiv-btns .pill').forEach(b => b.classList.toggle('on', b === btn));
+            buildDots();
+            if (metOn) restartMet();
+        });
+
+        document.getElementById('met-mute-btn').addEventListener('click', e => {
+            metMuted = !metMuted;
+            e.currentTarget.classList.toggle('on', !metMuted);
+        });
+
+        // ── Tempo knob ────────────────────────────────────────────────────────────────
+        function updateKnob() {
+            const t = Math.round(tempo);
+            document.getElementById('tempo-bpm').textContent = t;
+            const ratio = (t - TEMPO_MIN) / (TEMPO_MAX - TEMPO_MIN);
+            document.getElementById('knob-fill').setAttribute('stroke-dasharray', `${(ratio * KNOB_ARC).toFixed(2)} ${KNOB_CIRC}`);
+            document.getElementById('knob-indicator').setAttribute('transform', `rotate(${(-135 + ratio * 270).toFixed(1)})`);
+        }
+
+        const knobEl = document.getElementById('tempo-knob');
+        let knobDrag = false, knobLast = 0;
+
+        function knobAngle(e) {
+            const r = knobEl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            const px = e.touches ? e.touches[0].clientX : e.clientX, py = e.touches ? e.touches[0].clientY : e.clientY;
+            return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
+        }
+        function applyKnob(e) {
+            const a = knobAngle(e); let d = a - knobLast;
+            if (d > 180) d -= 360; if (d < -180) d += 360;
+            knobLast = a;
+            tempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, tempo + d * (TEMPO_MAX - TEMPO_MIN) / 270));
+            updateKnob();
+            if (isPlaying) cancelPlayback(); // woodblocks were timed at old tempo; kill them
+        }
+
+        knobEl.addEventListener('mousedown', e => { knobDrag = true; knobLast = knobAngle(e); knobEl.style.cursor = 'grabbing'; e.preventDefault(); });
+        knobEl.addEventListener('touchstart', e => { knobDrag = true; knobLast = knobAngle(e); e.preventDefault(); }, { passive: false });
+        document.addEventListener('mousemove', e => { if (knobDrag) applyKnob(e); });
+        document.addEventListener('touchmove', e => { if (knobDrag) applyKnob(e); }, { passive: false });
+        document.addEventListener('mouseup', () => { knobDrag = false; knobEl.style.cursor = 'grab'; });
+        document.addEventListener('touchend', () => { knobDrag = false; });
+        knobEl.addEventListener('wheel', e => {
+            e.preventDefault();
+            tempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, tempo - Math.sign(e.deltaY) * 2));
+            updateKnob();
+            if (isPlaying) cancelPlayback();
+        }, { passive: false });
+
+        // ── Init ──────────────────────────────────────────────────────────────────────
+        updateKnob();
+        buildDots();
+
+        // Volume sliders -> gain nodes
+        function applyMetVol() {
+            const el = document.getElementById('met-vol');
+            if (!el) return;
+            const v = parseInt(el.value || '100', 10);
+            // Map 20–160 → ~0.25–2.0
+            metGain.gain.value = (v / 80);
+        }
+        function applyPlayVol() {
+            const el = document.getElementById('play-vol');
+            if (!el) return;
+            const v = parseInt(el.value || '110', 10);
+            // Map 20–160 → ~0.25–2.0, slightly hotter base for playback
+            playGain.gain.value = (v / 80);
+        }
+
+        document.getElementById('met-vol').addEventListener('input', applyMetVol);
+        document.getElementById('play-vol').addEventListener('input', applyPlayVol);
+        applyMetVol();
+        applyPlayVol();
+
+        // ── MIDI Piano ──────────────────────────────────────────────────────────────
+        const midiGain = actx.createGain();
+        midiGain.gain.value = 0.6;
+        midiGain.connect(actx.destination);
+        const midiNotes = {};
+
+        function midiNoteOn(note, vel) {
+            if (actx.state === 'suspended') actx.resume();
+            if (midiNotes[note]) return;
+            const freq = 440 * Math.pow(2, (note - 69) / 12);
+            const osc = actx.createOscillator();
+            const g = actx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            osc.connect(g); g.connect(midiGain);
+            const now = actx.currentTime;
+            const peak = (vel / 127) * 0.7;
+            g.gain.setValueAtTime(0, now);
+            g.gain.linearRampToValueAtTime(peak, now + 0.008);
+            osc.start(now);
+            midiNotes[note] = { osc, g };
+        }
+
+        function midiNoteOff(note) {
+            const n = midiNotes[note];
+            if (!n) return;
+            const now = actx.currentTime;
+            n.g.gain.cancelScheduledValues(now);
+            n.g.gain.setValueAtTime(n.g.gain.value, now);
+            n.g.gain.linearRampToValueAtTime(0, now + 0.4);
+            n.osc.stop(now + 0.41);
+            delete midiNotes[note];
+        }
+
+        function onMidiMsg(e) {
+            const [cmd, note, vel] = e.data;
+            if (cmd === 144 && vel > 0) midiNoteOn(note, vel);
+            else if (cmd === 128 || (cmd === 144 && vel === 0)) midiNoteOff(note);
+        }
+
+        function connectMidi(access) {
+            const el = document.getElementById('midi-status');
+            const ins = [...access.inputs.values()];
+            ins.forEach(i => { i.onmidimessage = onMidiMsg; });
+            el.textContent = ins.length ? 'MIDI: connected' : 'MIDI: no device';
+            el.className = ins.length ? 'on' : '';
+            access.onstatechange = () => {
+                const ins2 = [...access.inputs.values()];
+                ins2.forEach(i => { i.onmidimessage = onMidiMsg; });
+                el.textContent = ins2.length ? 'MIDI: connected' : 'MIDI: no device';
+                el.className = ins2.length ? 'on' : '';
+            };
+        }
+
+        if (navigator.requestMIDIAccess) {
+            document.getElementById('midi-status').textContent = 'MIDI: searching\u2026';
+            navigator.requestMIDIAccess().then(connectMidi, () => {
+                const el = document.getElementById('midi-status');
+                el.textContent = 'MIDI: denied'; el.className = 'err';
+            });
+        }
+    </script>
 </body>
+
 </html>

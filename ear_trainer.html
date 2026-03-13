@@ -273,15 +273,31 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
         #midi-status {
-            position: fixed; bottom: 14px; right: 14px;
-            background: #252540; border: 1px solid #3a3a5c;
-            color: #888; border-radius: 12px; padding: 4px 10px;
-            font-size: 11px; font-family: monospace; z-index: 999;
+            position: fixed;
+            bottom: 14px;
+            right: 14px;
+            background: #252540;
+            border: 1px solid #3a3a5c;
+            color: #888;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-family: monospace;
+            z-index: 999;
             transition: color 0.3s, border-color 0.3s;
         }
-        #midi-status.on { color: #a0c4ff; border-color: #a0c4ff; }
-        #midi-status.err { color: #ff8080; border-color: #ff8080; }
+
+        #midi-status.on {
+            color: #a0c4ff;
+            border-color: #a0c4ff;
+        }
+
+        #midi-status.err {
+            color: #ff8080;
+            border-color: #ff8080;
+        }
     </style>
 </head>
 
@@ -315,18 +331,18 @@
         <div class="setting-group">
             <div class="lbl">Scale Playback</div>
             <div class="pill-group" id="sp-btns">
-                <button class="pill on" data-sp="yes">Play scale</button>
-                <button class="pill" data-sp="no">Skip scale</button>
+                <button class="pill" data-sp="yes">Play scale</button>
+                <button class="pill on" data-sp="no">Skip scale</button>
             </div>
         </div>
 
         <div class="setting-group">
             <div class="lbl">Note Range</div>
             <div class="pill-group" id="nr-btns">
-                <button class="pill on" data-nr="same">Same</button>
+                <button class="pill" data-nr="same">Same</button>
                 <button class="pill" data-nr="above">+ Above</button>
                 <button class="pill" data-nr="below">+ Below</button>
-                <button class="pill" data-nr="any">Any</button>
+                <button class="pill on" data-nr="any">Any</button>
             </div>
         </div>
 
@@ -375,7 +391,7 @@
             </g>
         </svg>
         <div class="tempo-val">
-            <span id="tempo-bpm">100</span>
+            <span id="tempo-bpm">140</span>
             <span class="tempo-unit">BPM</span>
         </div>
     </div>
@@ -418,11 +434,11 @@
 
         // Pool of selected scales (multi-select). Defaults to C only.
         let selectedScales = new Set([SCALES[0]]);
-        let tempo = 100;
+        let tempo = 140;
         let directionMode = 'up';   // 'up' | 'down' | 'both'
         let quizMode = 'scale'; // 'scale' | 'free1' | 'free2' | 'freeboth'
-        let noteRange = 'same'; // 'same' | 'above' | 'below'
-        let skipScale = false;
+        let noteRange = 'any'; // 'same' | 'above' | 'below' | 'any'
+        let skipScale = true;
         let currentScale = SCALES[0];
         let currentDir = 'up';
         let quizNotes = [0, 0]; // semitone offsets from root
@@ -526,7 +542,7 @@
 
         function buildNotePool(isFree) {
             const base = isFree ? Array.from({ length: 12 }, (_, i) => i) : SCALE_STEPS;
-            if (noteRange === 'same')  return base;
+            if (noteRange === 'same') return base;
             if (noteRange === 'above') return [...base, ...base.map(n => n + 12)];
             if (noteRange === 'below') return [...base.map(n => n - 12), ...base];
             // 'any': all three octaves; pickNewNotes enforces ≤12 semitones apart
@@ -763,6 +779,7 @@
             if (ansDiv.style.display === 'block') {
                 startSession(true);
             } else {
+                stopAll();
                 ansDiv.innerHTML = `${noteNameAt(quizNotes[0])} &#8594; ${noteNameAt(quizNotes[1])}`;
                 ansDiv.style.display = 'block';
                 const semitones = quizNotes[1] - quizNotes[0];
